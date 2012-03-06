@@ -48,9 +48,17 @@
     <Compile Include="Mysql\MysqlAuth.cs" />
     <Compile Include="Mysql\MysqlCapabilitiesSet.cs" />
     <Compile Include="Mysql\MysqlClient.cs" />
+    <Compile Include="Mysql\MysqlColumns.cs" />
+    <Compile Include="Mysql\MysqlCommandEnum.cs" />
+    <Compile Include="Mysql\MysqlException.cs" />
+    <Compile Include="Mysql\MysqlField.cs" />
+    <Compile Include="Mysql\MysqlFieldFlagsSet.cs" />
+    <Compile Include="Mysql\MysqlFieldTypeEnum.cs" />
     <Compile Include="Mysql\MysqlLanguageEnum.cs" />
     <Compile Include="Mysql\MysqlPacket.cs" />
     <Compile Include="Mysql\MysqlProtocolVersionEnum.cs" />
+    <Compile Include="Mysql\MysqlQueryResult.cs" />
+    <Compile Include="Mysql\MysqlRow.cs" />
     <Compile Include="Net\TcpServer.cs" />
     <Compile Include="Net\TcpSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

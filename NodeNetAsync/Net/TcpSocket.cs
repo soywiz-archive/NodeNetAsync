@@ -14,24 +14,29 @@ namespace NodeNetAsync.Net
 		NetworkStream Stream;
 		StreamReader StreamReader;
 		StreamWriter StreamWriter;
+		Encoding Encoding;
 
-		public TcpSocket(string Host, int Port)
+		public TcpSocket(string Host, int Port, Encoding Encoding)
 		{
 			this.TcpClient = new TcpClient(Host, Port);
+			this.Encoding = Encoding;
+			TcpClient.NoDelay = true;
 			_Init();
 		}
 
-		internal TcpSocket(TcpClient TcpClient)
+		internal TcpSocket(TcpClient TcpClient, Encoding Encoding)
 		{
 			this.TcpClient = TcpClient;
+			this.Encoding = Encoding;
 			_Init();
 		}
 
 		private void _Init()
 		{
+			//this.Stream = new BufferedStream(TcpClient.GetStream());
 			this.Stream = TcpClient.GetStream();
-			this.StreamReader = new StreamReader(Stream);
-			this.StreamWriter = new StreamWriter(Stream);
+			this.StreamReader = new StreamReader(Stream, Encoding, false, 1024, true);
+			this.StreamWriter = new StreamWriter(Stream, Encoding, 1024, true);
 			this.StreamWriter.AutoFlush = true;
 		}
 

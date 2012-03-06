@@ -11,11 +11,13 @@ namespace NodeNetAsync.Mysql
 	public partial class MysqlPacket
 	{
 		public byte PacketNumber;
+		private Encoding Encoding;
 		private MemoryStream Stream;
 		private StreamReader StreamReader;
 
-		public MysqlPacket(byte PacketNumber, byte[] ByteData = null)
+		public MysqlPacket(Encoding Encoding, byte PacketNumber, byte[] ByteData = null)
 		{
+			this.Encoding = Encoding;
 			this.PacketNumber = PacketNumber;
 			this.Stream = (ByteData != null) ? new MemoryStream(ByteData) : new MemoryStream();
 			this.StreamReader = new StreamReader(Stream);
@@ -44,6 +46,30 @@ namespace NodeNetAsync.Mysql
 			var Buffer = this.Stream.GetBuffer();
 			Array.Copy(Buffer, 0, Data, 0, Data.Length);
 			return Data;
+		}
+
+		public byte[] ReadLengthCodedStringBytes()
+		{
+			var Size = ReadLengthCoded();
+			if (Size == null) return null;
+			return ReadBytes((int)Size);
+		}
+
+		public String ReadLengthCodedString()
+		{
+			var Bytes = ReadLengthCodedStringBytes();
+			if (Bytes == null) return null;
+			return Encoding.GetString(Bytes);
+		}
+
+		public byte[] ReadLengthCodedBinary()
+		{
+			return ReadLengthCodedStringBytes();
+		}
+
+		public void Reset()
+		{
+			Stream.Position = 0;
 		}
 	}
 
@@ -202,6 +228,12 @@ namespace NodeNetAsync.Mysql
 		{
 			WriteLengthCodedInt((uint)Value.Length);
 			this.Stream.Write(Value, 0, Value.Length);
+		}
+
+		public void WryteBytes(byte[] Value, int Offset = 0, int Length = -1)
+		{
+			if (Length == -1) Length = Value.Length;
+			this.Stream.Write(Value, Offset, Length);
 		}
 	}
 }

@@ -46,7 +46,7 @@ namespace NodeNetAsync.Net
 
 			while (true)
 			{
-				HandleClientInternal(new TcpSocket(await TcpListener.AcceptTcpClientAsync()));
+				HandleClientInternal(new TcpSocket(await TcpListener.AcceptTcpClientAsync(), Encoding.GetEncoding("ISO-8859-1")));
 			}
 		}
 	}

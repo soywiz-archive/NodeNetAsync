@@ -52,7 +52,7 @@ namespace NodeNetAsync.Net.Http
 			try
 			{
 				// Handle Request
-				foreach (var Filter in FilterList) Filter.Filter(Request, Response);
+				foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
 
 				if (HandleRequest != null) await HandleRequest(Request, Response);
 			}

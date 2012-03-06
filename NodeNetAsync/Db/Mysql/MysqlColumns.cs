@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Db.Mysql
 {
-	public class MysqlColumns
+	public class MysqlColumns : IEnumerable<MysqlField>
 	{
 		private List<MysqlField> ColumnsByIndex = new List<MysqlField>();
 		private Dictionary<string, MysqlField> ColumnsByName = new Dictionary<string, MysqlField>();
@@ -41,5 +41,15 @@ namespace NodeNetAsync.Db.Mysql
 		}
 
 		public int Length { get { return ColumnsByIndex.Count; } }
+
+		public IEnumerator<MysqlField> GetEnumerator()
+		{
+			return ColumnsByIndex.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return ColumnsByIndex.GetEnumerator();
+		}
 	}
 }

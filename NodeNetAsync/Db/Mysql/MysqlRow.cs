@@ -8,12 +8,12 @@ namespace NodeNetAsync.Db.Mysql
 {
 	public class MysqlRow
 	{
-		public MysqlColumns MysqlColumns;
+		public MysqlColumns Columns;
 		public List<string> Cells = new List<string>();
 
-		public MysqlRow(MysqlColumns MysqlColumns)
+		public MysqlRow(MysqlColumns Columns)
 		{
-			this.MysqlColumns = MysqlColumns;
+			this.Columns = Columns;
 		}
 
 		public string this[int Index]
@@ -28,8 +28,36 @@ namespace NodeNetAsync.Db.Mysql
 		{
 			get
 			{
-				return this[MysqlColumns.GetIndexByColumnName(Name)];
+				return this[Columns.GetIndexByColumnName(Name)];
 			}
+		}
+
+		public TType CastTo<TType>()
+		{
+			var ItemValue = default(TType);
+			var ItemType = typeof(TType);
+
+			for (int n = 0; n < Columns.Length; n++)
+			{
+				var Column = Columns[n];
+				var Value = Cells[n];
+				var Field = ItemType.GetField(Column.Name);
+				if (Field != null)
+				{
+					object ValueObject = null;
+					if (Field.FieldType == typeof(bool))
+					{
+						ValueObject = (int.Parse(Value) != 0);
+					}
+					else
+					{
+						throw(new NotImplementedException("Can't handle type '" + Field.FieldType + "'"));
+					}
+					Field.SetValue(ItemValue, ValueObject);
+				}
+			}
+
+			return ItemValue;
 		}
 
 		public override string ToString()
@@ -37,7 +65,7 @@ namespace NodeNetAsync.Db.Mysql
 			var Parts = new List<string>();
 			for (int n = 0; n < Cells.Count; n++)
 			{
-				Parts.Add("'" + MysqlColumns[n].Name + "': '" + Cells[n] + "'");
+				Parts.Add("'" + Columns[n].Name + "': '" + Cells[n] + "'");
 			}
 			return "MysqlRow(" + String.Join(", ", Parts) + ")";
 		}

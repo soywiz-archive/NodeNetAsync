@@ -34,15 +34,17 @@ namespace NodeNetAsync.Net
 				}
 				if (Exception != null)
 				{
-					await Console.Out.WriteLineAsync(String.Format("{0}", Exception));
+					//await Console.Out.WriteLineAsync(String.Format("{0}", Exception));
 				}
 			}
 		}
 
 		async public Task ListenAsync()
 		{
+			Console.WriteLine(String.Format("Starting socket at {0}", TcpListener.LocalEndpoint));
 			TcpListener.Start();
-			await Console.Out.WriteLineAsync(String.Format("Started socket at {0}", TcpListener.LocalEndpoint));
+			//await Console.Out.WriteLineAsync(String.Format("Started socket at {0}", TcpListener.LocalEndpoint));
+			Console.WriteLine(String.Format("Started socket at {0}", TcpListener.LocalEndpoint));
 
 			while (true)
 			{

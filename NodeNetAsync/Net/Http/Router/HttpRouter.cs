@@ -16,22 +16,23 @@ namespace NodeNetAsync.Net.Http.Router
 			Routes.Add(new Regex("^" + Path + "$", RegexOptions.Compiled), Route);
 		}
 
-		public void Route(HttpRequest Request, HttpResponse Response)
+		async public Task Route(HttpRequest Request, HttpResponse Response)
 		{
 			foreach (var Route in Routes)
 			{
 				if (Route.Key.IsMatch(Request.Url))
 				{
-					Route.Value(Request, Response);
+					await Route.Value(Request, Response);
 					return;
 				}
 			}
+			Console.WriteLine("No rute found for '" + Request.Url + "'");
 			throw(new Exception("No route found!"));
 		}
 
-		public void Filter(HttpRequest Request, HttpResponse Response)
+		async public Task Filter(HttpRequest Request, HttpResponse Response)
 		{
-			Route(Request, Response);
+			await Route(Request, Response);
 		}
 	}
 }

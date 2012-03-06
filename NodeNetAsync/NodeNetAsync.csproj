@@ -32,6 +32,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Json, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime.Serialization.Json" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
+    <Compile Include="Json\JsonExtensions.cs" />
+    <Compile Include="Json\JsonSerializer.cs" />
     <Compile Include="Net\Http\HttpHeader.cs" />
     <Compile Include="Net\Http\HttpHeaders.cs" />
     <Compile Include="Net\Http\HttpRequest.cs" />

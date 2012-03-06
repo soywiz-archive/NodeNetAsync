@@ -53,7 +53,7 @@ namespace NodeNetAsync.Db.Mysql
 					{
 						throw(new NotImplementedException("Can't handle type '" + Field.FieldType + "'"));
 					}
-					Field.SetValue(ItemValue, ValueObject);
+					Field.SetValueDirect(__makeref(ItemValue), ValueObject);
 				}
 			}
 

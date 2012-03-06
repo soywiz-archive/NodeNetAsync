@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NodeNetAsync.Utils;
 
@@ -49,6 +50,7 @@ namespace NodeNetAsync.Net
 					//if (TcpClient.Available > 0)
 					{
 						int ToRead = Math.Min(RingBuffer.AvailableForWrite, TcpClient.Available);
+						if (ToRead == 0) await Task.Run(() => Thread.Sleep(1));
 						int Readed = await Stream.ReadAsync(TempBuffer, 0, ToRead);
 						RingBuffer.Write(TempBuffer, 0, Readed);
 					}

@@ -10,6 +10,12 @@ namespace NodeNetAsync.Net.Http.Router
 	public class HttpRouter : IHttpFilter
 	{
 		protected Dictionary<Regex, Func<HttpRequest, HttpResponse, Task>> Routes = new Dictionary<Regex, Func<HttpRequest, HttpResponse, Task>>();
+		Func<HttpRequest, HttpResponse, Task> DefaultRoute;
+
+		public void SetDefaultRoute(Func<HttpRequest, HttpResponse, Task> Route)
+		{
+			this.DefaultRoute = Route;
+		}
 
 		public void AddRoute(string Path, Func<HttpRequest, HttpResponse, Task> Route)
 		{
@@ -26,8 +32,16 @@ namespace NodeNetAsync.Net.Http.Router
 					return;
 				}
 			}
-			Console.WriteLine("No rute found for '" + Request.Url + "'");
-			throw(new Exception("No route found!"));
+			if (DefaultRoute == null)
+			{
+				Response.Headers["Content-Type"] = "text/html";
+				Console.WriteLine("No rute found for '" + Request.Url + "'");
+				throw (new Exception("No route found!"));
+			}
+			else
+			{
+				await DefaultRoute(Request, Response);
+			}
 		}
 
 		async public Task Filter(HttpRequest Request, HttpResponse Response)

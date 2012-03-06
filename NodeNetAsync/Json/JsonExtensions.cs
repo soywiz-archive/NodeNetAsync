@@ -13,5 +13,10 @@ namespace NodeNetAsync.Json
 		{
 			return JsonSerializer.Serialize(Object);
 		}
+
+		static public String ToJsonString<TType>(this TType Object)
+		{
+			return Object.ToJson().ToString();
+		}
 	}
 }

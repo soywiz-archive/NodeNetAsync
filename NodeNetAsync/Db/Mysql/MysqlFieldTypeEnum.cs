@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeNetAsync.Mysql
+namespace NodeNetAsync.Db.Mysql
 {
 	/// <summary>
 	/// The code for the column's data type. Also known as

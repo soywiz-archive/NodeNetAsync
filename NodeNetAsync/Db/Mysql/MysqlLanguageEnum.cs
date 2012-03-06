@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeNetAsync.Mysql
+namespace NodeNetAsync.Db.Mysql
 {
 	public enum MysqlLanguageEnum : byte
 	{

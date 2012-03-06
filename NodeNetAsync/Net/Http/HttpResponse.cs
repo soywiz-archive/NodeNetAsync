@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
 
-namespace NodeNetAsync.Http
+namespace NodeNetAsync.Net.Http
 {
 	public class HttpResponse
 	{

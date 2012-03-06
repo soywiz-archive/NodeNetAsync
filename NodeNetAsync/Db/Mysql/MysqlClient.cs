@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
 
-namespace NodeNetAsync.Mysql
+namespace NodeNetAsync.Db.Mysql
 {
-	public class MysqlClient
+	public class MysqlClient : IDisposable
 	{
 		private string Host;
 		private int Port;
@@ -20,7 +20,7 @@ namespace NodeNetAsync.Mysql
 		private TcpSocket TcpSocket;
 		private int MaxPacketSize;
 		private byte[] ScrambleBuffer;
-		private Encoding ConnectionEncoding = Encoding.UTF8;
+		private Encoding ConnectionEncoding = new UTF8Encoding(false);
 		private MysqlLanguageEnum ConnectionEncodingInternal = MysqlLanguageEnum.UTF8_UNICODE_CI;
 		public byte LastPackedId;
 
@@ -37,7 +37,7 @@ namespace NodeNetAsync.Mysql
 
 		async public Task ConnectAsync()
 		{
-			this.TcpSocket = new TcpSocket(Host, Port, Encoding.GetEncoding("ISO-8859-1"));
+			this.TcpSocket = new TcpSocket(Host, Port);
 			HandleHandshakePacket(await ReadPacketAsync());
 			await SendPacket(CreateNewAuthPacket());
 			HandleResultPacket(await ReadPacketAsync());
@@ -50,7 +50,7 @@ namespace NodeNetAsync.Mysql
 			var InsertId = Packet.ReadLengthCoded();
 			var ServerStatus = Packet.ReadUInt16();
 			var WarningCount = Packet.ReadUInt16();
-			var Message = Packet.ReadStringz();
+			var Message = Packet.ReadStringz(ConnectionEncoding);
 			/*
 			Console.WriteLine("PacketNumber: {0}", Packet.PacketNumber);
 			Console.WriteLine("Result:");
@@ -68,7 +68,7 @@ namespace NodeNetAsync.Mysql
 			
 			//Trace.Assert(Packet.Number == 0);
 			var ProtocolVersion = (MysqlProtocolVersionEnum)Packet.ReadByte();
-			var ServerVersion = Packet.ReadStringz();
+			var ServerVersion = Packet.ReadStringz(ConnectionEncoding);
 			var ThreadId = Packet.ReadUInt32();
 			var Scramble0 = Packet.ReadStringzBytes();
 			var ServerCapabilitiesLow = Packet.ReadUInt16();
@@ -78,7 +78,7 @@ namespace NodeNetAsync.Mysql
 			var PluginLength = Packet.ReadByte();
 			Packet.ReadBytes(10);
 			var Scramble1 = Packet.ReadStringzBytes();
-			var Extra = Packet.ReadStringz();
+			var Extra = Packet.ReadStringz(ConnectionEncoding);
 
 			this.ScrambleBuffer = Scramble0.Concat(Scramble1).ToArray();
 
@@ -246,6 +246,13 @@ namespace NodeNetAsync.Mysql
 		async public Task CloseAsync()
 		{
 			await TcpSocket.CloseAsync();
+		}
+
+		public void Dispose()
+		{
+			//AsyncHelpers.
+			//AsyncHelpers.
+			//CloseAsync().GetAwaiter().
 		}
 	}
 }

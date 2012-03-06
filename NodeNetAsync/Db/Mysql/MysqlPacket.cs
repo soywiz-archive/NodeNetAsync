@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
 
-namespace NodeNetAsync.Mysql
+namespace NodeNetAsync.Db.Mysql
 {
 	public partial class MysqlPacket
 	{
@@ -83,10 +83,10 @@ namespace NodeNetAsync.Mysql
 			return Out;
 		}
 
-		public string ReadStringz()
+		public string ReadStringz(Encoding Encoding)
 		{
 			var Buffer = ReadStringzMemoryStream();
-			return Encoding.UTF8.GetString(Buffer.GetBuffer(), 0, (int)Buffer.Length);
+			return Encoding.GetString(Buffer.GetBuffer(), 0, (int)Buffer.Length);
 		}
 
 		public byte ReadByte()

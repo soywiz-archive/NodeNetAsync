@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeNetAsync.Mysql
+namespace NodeNetAsync.Db.Mysql
 {
 	/// <summary>
 	/// The possible flag values at time of

@@ -58,7 +58,7 @@ namespace NodeNetAsync.Net.Http
 		{
 			await WriteChunkAsync("");
 
-			if (Buffer.Length > 0)
+			if (Buffering)
 			{
 				await Client.WriteAsync(Buffer.GetBuffer(), 0, (int)Buffer.Length);
 			}
@@ -87,7 +87,9 @@ namespace NodeNetAsync.Net.Http
 
 			if (Buffering)
 			{
+				Buffer.Write(DataPre, 0, DataPre.Length);
 				Buffer.Write(Data, Offset, Count);
+				Buffer.Write(DataPost, 0, DataPost.Length);
 			}
 			else
 			{

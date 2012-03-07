@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NodeNetAsync.Streams;
 using NodeNetAsync.Utils;
 using SystemTcpClient = System.Net.Sockets.TcpClient;
 
@@ -13,8 +14,8 @@ namespace NodeNetAsync.Net
 {
 	public class TcpSocket : NodeBufferedStream
 	{
-		string Host;
-		int Port;
+		//string Host;
+		//int Port;
 		SystemTcpClient TcpClient;
 
 		async static public Task<TcpSocket> CreateAndConnectAsync(string Host, int Port)

@@ -12,7 +12,7 @@ namespace NodeNetAsync.Db.Redis
 	/// Simple non-binary-safe Redis Async Client.
 	/// </summary>
 	/// <see cref="http://redis.io/topics/protocol"/>
-	public class RedisClient
+	public partial class RedisClient
 	{
 		protected TcpSocket TcpClient;
 		protected Encoding Encoding;
@@ -24,10 +24,10 @@ namespace NodeNetAsync.Db.Redis
 		/// <param name="Port"></param>
 		/// <param name="Encoding"></param>
 		/// <returns></returns>
-		async static public Task<RedisClient> CreateAndConnectAsync(string Host, ushort Port = 6379, Encoding Encoding = null)
+		async static public Task<RedisClient> CreateAndConnectAsync(string Host, ushort Port = 6379, Encoding Encoding = null, string Password = null)
 		{
 			var RedisClient = new RedisClient(Encoding);
-			await RedisClient.ConnectAsync(Host, Port);
+			await RedisClient.ConnectAsync(Host, Port, Password);
 			return RedisClient;
 		}
 
@@ -47,9 +47,22 @@ namespace NodeNetAsync.Db.Redis
 		/// <param name="Host"></param>
 		/// <param name="Port"></param>
 		/// <returns></returns>
-		async protected Task ConnectAsync(string Host, ushort Port = 6379)
+		async protected Task ConnectAsync(string Host, ushort Port = 6379, string Password = null)
 		{
 			this.TcpClient = await TcpSocket.CreateAndConnectAsync(Host, Port);
+			if (Password != null)
+			{
+				await this.AuthAsync(Password);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		async public Task CloseAsync()
+		{
+			await this.TcpClient.CloseAsync();
 		}
 
 		/// <summary>
@@ -111,40 +124,6 @@ namespace NodeNetAsync.Db.Redis
 			await TcpClient.WriteAsync(Data, 0, (int)Data.Length);
 
 			return await ReadValueAsync();
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="Key"></param>
-		/// <param name="Value"></param>
-		/// <returns></returns>
-		/// <see cref="http://redis.io/commands/set"/>
-		async public Task SetAsync(string Key, string Value)
-		{
-			await CommandAsync("set", Key, Value);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="Key"></param>
-		/// <returns></returns>
-		/// <see cref="http://redis.io/commands/get"/>
-		async public Task<object> GetAsync(string Key)
-		{
-			return await CommandAsync("get", Key);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="Password"></param>
-		/// <returns></returns>
-		/// <see cref="http://redis.io/commands/auth"/>
-		async public Task<object> AuthAsync(string Password)
-		{
-			return await CommandAsync("auth", Password);
 		}
 	}
 }

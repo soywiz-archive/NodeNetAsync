@@ -14,6 +14,11 @@ namespace NodeNetAsync.Examples
 		{
 			Core.Loop(async () =>
 			{
+				Core.SetInterval(async () =>
+				{
+					await Console.Out.WriteLineAsync("Hello World!");
+				}, TimeSpan.FromMilliseconds(1000));
+
 				await HttpServer.Create(async (Request, Response) =>
 				{
 					Response.Buffering = true;
@@ -27,6 +32,8 @@ namespace NodeNetAsync.Examples
 					var Item = await Redis.GetAsync("foo");
 
 					await Response.WriteChunkAsync("TEST: " + Item);
+
+					await Redis.CloseAsync();
 				}).ListenAsync(80);
 			});
 		}

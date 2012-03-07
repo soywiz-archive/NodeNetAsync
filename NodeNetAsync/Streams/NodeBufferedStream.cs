@@ -8,19 +8,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using NodeNetAsync.Utils;
 
-namespace NodeNetAsync.Net
+namespace NodeNetAsync.Streams
 {
 	public class NodeBufferedStream
 	{
-		protected NetworkStream Stream;
+		protected Stream Stream;
 		protected byte[] TempBuffer = new byte[1024];
 		protected ByteRingBuffer RingBuffer = new ByteRingBuffer(1024);
+		public Encoding DefaultEncoding;
 
 		protected NodeBufferedStream()
 		{
 		}
 
-		public NodeBufferedStream(NetworkStream Stream)
+		public NodeBufferedStream(Stream Stream)
 		{
 			this.Stream = Stream;
 		}
@@ -52,8 +53,9 @@ namespace NodeNetAsync.Net
 			await this.Stream.FlushAsync();
 		}
 
-		async public Task<string> ReadLineAsync(Encoding Encoding)
+		async public Task<string> ReadLineAsync(Encoding Encoding = null)
 		{
+			if (Encoding == null) Encoding = this.DefaultEncoding;
 			var String = Encoding.GetString(await ReadLineAsByteArrayAsync());
 			//Console.WriteLine(String);
 			return String;
@@ -131,8 +133,9 @@ namespace NodeNetAsync.Net
 			await Stream.WriteAsync(Buffer, Offset, Count);
 		}
 
-		async public Task WriteAsync(string Text, Encoding Encoding)
+		async public Task WriteAsync(string Text, Encoding Encoding = null)
 		{
+			if (Encoding == null) Encoding = this.DefaultEncoding;
 			await WriteAsync(Encoding.GetBytes(Text));
 		}
 

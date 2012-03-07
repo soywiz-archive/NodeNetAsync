@@ -12,7 +12,6 @@ namespace NodeNetAsync.Utils
 		private int PositionRead;
 		public int AvailableForRead { get; private set; }
 		public int AvailableForWrite { get; private set; }
-		private bool Empty;
 		private TType[] Data;
 		public readonly int Size;
 
@@ -22,7 +21,6 @@ namespace NodeNetAsync.Utils
 			this.Data = new TType[Size];
 			this.AvailableForWrite = Size;
 			this.AvailableForRead = 0;
-			this.Empty = true;
 		}
 
 		public TType[] PeekGet(int Count)
@@ -77,8 +75,6 @@ namespace NodeNetAsync.Utils
 
 			AvailableForWrite -= Count;
 			AvailableForRead += Count;
-
-			Empty = false;
 		}
 	}
 }

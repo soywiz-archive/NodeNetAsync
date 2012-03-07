@@ -35,9 +35,18 @@ namespace NodeNetAsync.Db.Mysql
 			this.MaxPacketSize = MaxPacketSize;
 		}
 
+		public bool IsConnected
+		{
+			get
+			{
+				if (this.TcpSocket == null) return false;
+				return true;
+			}
+		}
+
 		async public Task ConnectAsync()
 		{
-			this.TcpSocket = new TcpSocket(Host, Port);
+			this.TcpSocket = await TcpSocket.CreateAndConnectAsync(Host, Port);
 			HandleHandshakePacket(await ReadPacketAsync());
 			await SendPacket(CreateNewAuthPacket());
 			HandleResultPacket(await ReadPacketAsync());
@@ -147,6 +156,10 @@ namespace NodeNetAsync.Db.Mysql
 
 		async public Task<MysqlQueryResult> QueryAsync(string Query)
 		{
+			if (!IsConnected)
+			{
+				await ConnectAsync();
+			}
 			var MysqlQueryResult = new MysqlQueryResult();
 
 			var OutPacket = new MysqlPacket(ConnectionEncoding, 0);

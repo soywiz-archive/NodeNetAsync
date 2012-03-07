@@ -28,7 +28,7 @@ namespace NodeNetAsync.Examples
 					Response.Code = 200;
 					Response.Headers["Content-Type"] = "application/json";
 
-					var MysqlClient = new MysqlClient("127.0.0.1", User: "root", Password: "");
+					var MysqlClient = new MysqlClient("FEDORADEV", User: "test", Password: "test");
 					await MysqlClient.ConnectAsync();
 
 					foreach (var Row in await MysqlClient.QueryAsync("SELECT 1 as 'k1', 2 as 'k2', 3 * 999, 'test', 1 as 'Ok';"))

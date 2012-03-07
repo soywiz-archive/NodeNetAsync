@@ -6,49 +6,46 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Utils
 {
-#if true
-	public class ByteRingBuffer : RingBuffer<byte>
-	{
-		public ByteRingBuffer(int Count) : base(Count) { }
-	}
-#else
-	public class ByteRingBuffer
+	public class RingBuffer<TType>
 	{
 		private int PositionWrite;
 		private int PositionRead;
 		public int AvailableForRead { get; private set; }
 		public int AvailableForWrite { get; private set; }
 		private bool Empty;
-		private byte[] Data;
+		private TType[] Data;
 		public readonly int Size;
 
-		public ByteRingBuffer(int Size)
+		public RingBuffer(int Size)
 		{
 			this.Size = Size;
-			this.Data = new byte[Size];
+			this.Data = new TType[Size];
 			this.AvailableForWrite = Size;
 			this.AvailableForRead = 0;
 			this.Empty = true;
 		}
 
-		public byte[] PeekGet(int Count)
+		public TType[] PeekGet(int Count)
 		{
-			var Temp = new byte[Count];
+			var Temp = new TType[Count];
 			int Readed = Peek(Temp, 0, Count);
-			var Return = new byte[Readed];
+			var Return = new TType[Readed];
 			Array.Copy(Temp, 0, Return, 0, Readed);
 			return Return;
 		}
 
-		public int Peek(byte[] Buffer, int Offset = 0, int Count = -1)
+		public int Peek(TType[] Buffer, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Buffer.Length;
 			int TempPositionRead = PositionRead;
 			Count = Math.Min(Count, AvailableForRead);
-			for (int n = 0; n < Count; n++)
+			if (Buffer != null)
 			{
-				Buffer[Offset + n] = Data[TempPositionRead++];
-				if (TempPositionRead >= Size) TempPositionRead = 0;
+				for (int n = 0; n < Count; n++)
+				{
+					Buffer[Offset + n] = Data[TempPositionRead++];
+					if (TempPositionRead >= Size) TempPositionRead = 0;
+				}
 			}
 			return Count;
 		}
@@ -62,12 +59,12 @@ namespace NodeNetAsync.Utils
 			return Count;
 		}
 
-		public int Read(byte[] Buffer, int Offset = 0, int Count = -1)
+		public int Read(TType[] Buffer, int Offset = 0, int Count = -1)
 		{
 			return Skip(Peek(Buffer, Offset, Count));
 		}
 
-		public void Write(byte[] Buffer, int Offset = 0, int Count = -1)
+		public void Write(TType[] Buffer, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Buffer.Length;
 			Count = Math.Min(Count, AvailableForWrite);
@@ -84,5 +81,4 @@ namespace NodeNetAsync.Utils
 			Empty = false;
 		}
 	}
-#endif
 }

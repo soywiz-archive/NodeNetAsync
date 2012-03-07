@@ -32,12 +32,6 @@ namespace NodeNetAsync.Net.Http
 			this.Client = Client;
 		}
 
-		async public Task EndAsync()
-		{
-			await WriteChunkAsync("");
-			await Client.CloseAsync();
-		}
-
 		public bool HeadersSent { get; private set; }
 
 		async public Task SendHeadersAsync()
@@ -45,8 +39,31 @@ namespace NodeNetAsync.Net.Http
 			if (!HeadersSent)
 			{
 				HeadersSent = true;
-				await Client.WriteAsync("HTTP/1.1 200 OK\r\n" + Headers.ToString() + "\r\n", Encoding);
+
+				var HeadersString = "HTTP/1.1 200 OK\r\n" + Headers.ToString() + "\r\n";
+
+				if (Buffering)
+				{
+					var HeadersByteArray = Encoding.GetBytes(HeadersString);
+					Buffer.Write(HeadersByteArray, 0, HeadersByteArray.Length);
+				}
+				else
+				{
+					await Client.WriteAsync(HeadersString, Encoding);
+				}
 			}
+		}
+
+		async public Task EndAsync()
+		{
+			await WriteChunkAsync("");
+
+			if (Buffer.Length > 0)
+			{
+				await Client.WriteAsync(Buffer.GetBuffer(), 0, (int)Buffer.Length);
+			}
+
+			await Client.CloseAsync();
 		}
 
 		async public Task WriteChunkAsync(string Text)
@@ -56,21 +73,30 @@ namespace NodeNetAsync.Net.Http
 			await WriteChunkAsync(Encoding.GetBytes(Text));
 		}
 
+		MemoryStream Buffer = new MemoryStream();
+		public bool Buffering = false;
+
 		async public Task WriteChunkAsync(byte[] Data, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Data.Length;
+
+			var DataPre = Encoding.GetBytes(Convert.ToString(Count, 16).ToUpper() + "\r\n");
+			var DataPost = Encoding.GetBytes("\r\n");
+
 			if (!HeadersSent) await SendHeadersAsync();
 
-#if true
-			await Client.WriteAsync(Encoding.GetBytes(Convert.ToString(Count, 16).ToUpper() + "\r\n"));
-			if (Count > 0)
+			if (Buffering)
 			{
-				await Client.WriteAsync(Data, Offset, Count);
+				Buffer.Write(Data, Offset, Count);
 			}
-			await Client.WriteAsync(Encoding.GetBytes("\r\n"));
-#else
-			//await Client.WriteAsync(Encoding.GetBytes(Convert.ToString(Data.Length, 16).ToUpper() + "\r\n").Concat(Data).Concat(Encoding.GetBytes("\r\n")).ToArray());
-#endif
+			else
+			{
+				var Temp = new byte[Count + 32];
+				Array.Copy(DataPre, 0, Temp, 0, DataPre.Length);
+				if (Count > 0) Array.Copy(Data, Offset, Temp, 0 + DataPre.Length, Count);
+				Array.Copy(DataPost, 0, Temp, 0 + DataPre.Length + Data.Length, DataPost.Length);
+				await Client.WriteAsync(Temp, 0, (DataPre.Length + Data.Length + DataPost.Length));
+			}
 		}
 
 		async public Task CopyFromStreamASync(Stream SourceStream)

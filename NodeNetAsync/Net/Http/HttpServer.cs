@@ -14,10 +14,14 @@ namespace NodeNetAsync.Net.Http
 		public event Func<HttpRequest, HttpResponse, Task> HandleRequest;
 		static Encoding HeaderEncoding = Encoding.GetEncoding("ISO-8859-1");
 
-		public HttpServer(short Port = 80, string Host = "0.0.0.0")
+		static public HttpServer Create(Func<HttpRequest, HttpResponse, Task> HandleRequest)
 		{
-			TcpServer = new TcpServer(Port, Host);
-			TcpServer.HandleClient += TcpServer_HandleClient;
+			return new HttpServer(HandleRequest);
+		}
+
+		public HttpServer(Func<HttpRequest, HttpResponse, Task> HandleRequest = null)
+		{
+			this.HandleRequest = HandleRequest;
 		}
 
 		async private Task TcpServer_HandleClient(TcpSocket Client)
@@ -71,8 +75,10 @@ namespace NodeNetAsync.Net.Http
 			await Response.EndAsync();
 		}
 
-		async public Task ListenAsync()
+		async public Task ListenAsync(short Port = 80, string Host = "0.0.0.0")
 		{
+			this.TcpServer = new TcpServer(Port, Host);
+			this.TcpServer.HandleClient += TcpServer_HandleClient;
 			await TcpServer.ListenAsync();
 			Console.WriteLine("End Http Server");
 		}

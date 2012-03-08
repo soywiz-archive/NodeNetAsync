@@ -70,6 +70,7 @@
     <Compile Include="Net\Http\Router\HttpRouter.cs" />
     <Compile Include="Net\Http\Static\HttpStaticFileServer.cs" />
     <Compile Include="Net\Http\WebSockets\HttpWebSocket.cs" />
+    <Compile Include="Net\TestTcpServer.cs" />
     <Compile Include="Streams\NodeBufferedStream.cs" />
     <Compile Include="Net\TcpServer.cs" />
     <Compile Include="Net\TcpSocket.cs" />

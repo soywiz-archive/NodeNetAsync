@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NodeNetAsync.Net;
 using NodeNetAsync.Net.Http;
 using NodeNetAsync.Net.Http.Router;
 using NodeNetAsync.Net.Http.Static;
@@ -207,7 +208,7 @@ namespace NodeNetAsync.Examples
 			}
 		}
 
-		static public void Main(string[] Args)
+		static public void Main2(string[] Args)
 		{
 			Core.Loop(async () =>
 			{
@@ -312,6 +313,23 @@ namespace NodeNetAsync.Examples
 				Server.AddFilterLast(Router);
 				await Server.ListenAsync(80, "127.0.0.1");
 			});
+		}
+
+		static public void Main(string[] Args)
+		{
+			/*
+			try
+			{
+				new NodeNetAsync.Db.Redis.RedisClientTest().TestConnection().Wait();
+			}
+			catch (Exception Exception)
+			{
+				Console.WriteLine(Exception);
+				Console.ReadKey();
+			}
+			*/
+
+			Main2(Args);
 		}
 	}
 }

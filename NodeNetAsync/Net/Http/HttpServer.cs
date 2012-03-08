@@ -101,7 +101,7 @@ namespace NodeNetAsync.Net.Http
 			await Client.CloseAsync();
 		}
 
-		async public Task ListenAsync(short Port = 80, string Host = "0.0.0.0")
+		async public Task ListenAsync(ushort Port = 80, string Host = "0.0.0.0")
 		{
 			this.TcpServer = new TcpServer(Port, Host);
 			this.TcpServer.HandleClient += TcpServer_HandleClient;

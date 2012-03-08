@@ -15,7 +15,7 @@ namespace NodeNetAsync.Streams
 		protected Stream Stream;
 		protected byte[] TempBuffer = new byte[1024];
 		protected ByteRingBuffer RingBuffer = new ByteRingBuffer(1024);
-		public Encoding DefaultEncoding;
+		public Encoding DefaultEncoding = Encoding.UTF8;
 
 		protected NodeBufferedStream()
 		{
@@ -155,6 +155,12 @@ namespace NodeNetAsync.Streams
 			var Data = new byte[Count];
 			await ReadAsync(Data, 0, Count);
 			return Data;
+		}
+
+		async public Task<string> ReadStringAsync(int Count, Encoding Encoding = null)
+		{
+			if (Encoding == null) Encoding = this.DefaultEncoding;
+			return Encoding.GetString(await ReadBytesAsync(Count));
 		}
 	}
 }

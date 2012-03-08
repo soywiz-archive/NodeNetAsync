@@ -88,6 +88,7 @@ namespace NodeNetAsync.Db.Redis
 					var Data = await TcpClient.ReadBytesAsync(BytesToRead);
 					await TcpClient.SkipBytesAsync(2);
 					return Encoding.GetString(Data);
+				// Array reply
 				case '*':
 					var BulksToRead = Convert.ToInt64(FirstLine.Substring(1));
 					var Bulks = new object[BulksToRead];
@@ -110,8 +111,6 @@ namespace NodeNetAsync.Db.Redis
 		/// <see cref="http://redis.io/commands"/>
 		async public Task<object> CommandAsync(params string[] Arguments)
 		{
-			var MemoryStream = new MemoryStream();
-
 			var Command = "*" + Arguments.Length + "\r\n";
 			foreach (var Argument in Arguments)
 			{

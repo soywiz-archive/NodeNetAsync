@@ -45,7 +45,7 @@ namespace NodeNetAsync.Examples
 						WebSocket.Tag.UserName = "User" + WebSocket.UniqueId;
 						ConnectedSockets.Add(WebSocket);
 
-						await BroadcastMessage(String.Format("System: User '{0}' connected", WebSocket.Tag.UserName));
+						await BroadcastMessage(String.Format("Global: User '{0}' connected", WebSocket.Tag.UserName));
 
 						while (true)
 						{
@@ -67,8 +67,8 @@ namespace NodeNetAsync.Examples
 												var OldName = WebSocket.Tag.UserName;
 												var NewName = Parts[1];
 												WebSocket.Tag.UserName = NewName;
-												await WebSocket.WritePacketAsync(String.Format("{0}: {1}", "System", "Changed nick to: " + Parts[1]));
-												await BroadcastMessage(String.Format("System: User '{0}' changed nick to '{1}'", OldName, NewName));
+												await WebSocket.WritePacketAsync(String.Format("System: Changed nick to: {0}", Parts[1]));
+												await BroadcastMessage(String.Format("Global: User '{0}' changed nick to '{1}'", OldName, NewName));
 											}
 											else
 											{
@@ -98,7 +98,7 @@ namespace NodeNetAsync.Examples
 					{
 						Console.WriteLine("Socket Disconnected");
 						ConnectedSockets.Remove(WebSocket);
-						await BroadcastMessage(String.Format("System: User '{0}' disconnected", WebSocket.Tag.UserName));
+						await BroadcastMessage(String.Format("Global: User '{0}' disconnected", WebSocket.Tag.UserName));
 					}
 				));
 
@@ -129,16 +129,17 @@ namespace NodeNetAsync.Examples
 								for (var n = 0; n < str.length; n++) hash ^= str.charCodeAt(n);
 								return hash;
 							}
-							if ('WebSocket' in window) {
-								function console_write(color, message) {
-									$('#console').append($('<div>').css('color', color).text(message));
-									$('#console')[0].scrollTop = $('#console')[0].scrollHeight;
-									//$('#console').animate({ scrollTop: $('#console')[0].scrollHeight }, 100);
-								}
+							function console_write(color, message) {
+								$('#console').append($('<div>').css('color', color).text(message));
+								$('#console')[0].scrollTop = $('#console')[0].scrollHeight;
+								//$('#console').animate({ scrollTop: $('#console')[0].scrollHeight }, 100);
+							}
 
+							if ('WebSocket' in window) {
 								function reconect() {
 									var ws = new WebSocket('ws://localhost/websocket');
 									ws.onopen = function() {
+										console_write('green', 'Websocket opened!');
 										$('#connecting').hide();
 										$('#editor').show();
 										$('#editor').on('submit', function() {
@@ -154,11 +155,13 @@ namespace NodeNetAsync.Examples
 										var message = parts.slice(1).join(':');
 										var user_hash = hash(user);
 										var color = colorTable[user_hash % colorTable.length];
+										if (user == 'System') color = 'black';
+										if (user == 'Global') color = 'orange';
 										console_write(color, user + ': ' + message);
 									};
 									ws.onclose = function() {
-										$('#editor').off('submit');
 										console_write('red', 'Websocket closed!');
+										$('#editor').off('submit');
 										$('#connecting').show();
 										$('#editor').hide();
 										setTimeout(reconect, 1000);
@@ -166,7 +169,7 @@ namespace NodeNetAsync.Examples
 								}
 								reconect();
 							} else {
-								alert('Websocket is not supported in your browser');
+								console_write('red', 'Websocket is not supported in your browser');
 							}
 						</script>
 						</body>

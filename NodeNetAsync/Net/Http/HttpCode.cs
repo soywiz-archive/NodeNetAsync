@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Net.Http
 {
-	public class HttpCode
+	public enum HttpCode
 	{
-		public enum Ids
-		{
-			WebSocketProtocolHandshake = 101,
-			Ok = 200,
-			NotFound = 404,
-		}
+		WEB_SOCKET_PROTOCOL_HANDSHAKE = 101,
+		OK = 200,
+		NOT_FOUND = 404,
+	}
 
-		static public string GetStringFromId(Ids Id)
+	public class HttpCodeUtils
+	{
+		static public string GetStringFromId(HttpCode Code)
 		{
-			switch (Id)
+			switch (Code)
 			{
-				case Ids.Ok: return "OK";
-				case Ids.NotFound: return "Not Found";
-				case Ids.WebSocketProtocolHandshake: return "Web Socket Protocol Handshake";
+				case HttpCode.OK: return "OK";
+				case HttpCode.NOT_FOUND: return "Not Found";
+				case HttpCode.WEB_SOCKET_PROTOCOL_HANDSHAKE: return "Web Socket Protocol Handshake";
 				default: return "Unknwon";
 			}
 		}

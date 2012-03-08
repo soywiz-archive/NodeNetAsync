@@ -11,28 +11,20 @@ namespace NodeNetAsync.Net
 {
 	public class TestTcpServer
 	{
-		async static public Task Create(Func<TcpSocket, Task> ServerClientHandle, Func<ushort, Task> ClientConnection, Action<Exception> OnError = null)
+		async static public Task Create(Func<TcpSocket, Task> Server, Func<ushort, Task> Client)
 		{
-			try
+			var TestPort = TcpServer.GetAvailablePort();
+			var TcpListener = new TcpServer(Port: TestPort, Bind: "127.0.0.1", CatchExceptions: false);
+			TcpListener.HandleClient += async (TcpSocket) =>
 			{
-				var TestPort = TcpServer.GetAvailablePort();
-				var Server = new TcpServer(Port: TestPort, Bind: "127.0.0.1", CatchExceptions: false);
-				Server.HandleClient += async (Client) =>
-				{
-					await ServerClientHandle(Client);
-					await Client.CloseAsync();
-				};
-				var ListeningTask = Server.ListenAsync(1);
-				{
-					await ClientConnection(TestPort);
-				}
-				await ListeningTask;
-			}
-			catch (Exception Exception)
+				await Server(TcpSocket);
+				await TcpSocket.CloseAsync();
+			};
+			var ListeningTask = TcpListener.ListenAsync(1);
 			{
-				if (OnError != null) OnError(Exception);
+				await Client(TestPort);
 			}
-			//await Task.Delay(100);
+			await ListeningTask;
 		}
 	}
 }

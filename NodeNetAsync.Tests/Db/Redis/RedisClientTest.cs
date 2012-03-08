@@ -14,7 +14,7 @@ namespace NodeNetAsync.Tests.Db.Redis
 		async public Task TestConnection()
 		{
 			await TestTcpServer.Create(
-				ServerClientHandle: async (Client) =>
+				Server: async (Client) =>
 				{
 					// SET
 					Assert.AreEqual("*3", await Client.ReadLineAsync());
@@ -35,15 +35,11 @@ namespace NodeNetAsync.Tests.Db.Redis
 					
 					await Client.WriteAsync("$4\r\ntest\r\n");
 				},
-				ClientConnection: async (TestPort) =>
+				Client: async (TestPort) =>
 				{
 					var Redis = await RedisClient.CreateAndConnectAsync(Host: "127.0.0.1", Port: TestPort);
 					await Redis.SetAsync("foo", "test");
 					Assert.AreEqual("test", await Redis.GetAsync("foo"));
-				},
-				OnError: (Exception) =>
-				{
-					Assert.Fail();
 				}
 			);
 		}

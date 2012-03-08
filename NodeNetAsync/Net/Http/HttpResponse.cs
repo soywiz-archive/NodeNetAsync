@@ -18,7 +18,7 @@ namespace NodeNetAsync.Net.Http
 		/// <summary>
 		/// Response Code.
 		/// </summary>
-		public HttpCode.Ids Code = HttpCode.Ids.Ok;
+		public HttpCode Code = HttpCode.OK;
 
 		/// <summary>
 		/// 
@@ -75,7 +75,7 @@ namespace NodeNetAsync.Net.Http
 				HeadersSent = true;
 
 				var HeadersString = "";
-				HeadersString += "HTTP/1.1 " + (int)Code + " " + HttpCode.GetStringFromId(Code) + "\r\n";
+				HeadersString += "HTTP/1.1 " + (int)Code + " " + HttpCodeUtils.GetStringFromId(Code) + "\r\n";
 				HeadersString += Headers.GetEncodeString() + "\r\n";
 
 				if (Buffering)

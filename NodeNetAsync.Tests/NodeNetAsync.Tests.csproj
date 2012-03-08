@@ -48,6 +48,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Db\Mysql\MysqlClientTest.cs" />
     <Compile Include="Db\Redis\RedisClientTest.cs" />
     <Compile Include="Json\JsonSerializerTest.cs" />
     <Compile Include="Net\Http\HttpHeadersTest.cs" />

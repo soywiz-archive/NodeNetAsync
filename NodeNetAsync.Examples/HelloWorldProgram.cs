@@ -17,7 +17,7 @@ namespace NodeNetAsync.Examples
 				{
 					Response.Buffering = true;
 
-					Response.Code = HttpCode.Ids.Ok;
+					Response.Code = HttpCode.OK;
 					Response.Headers["Content-Type"] = "text/plain";
 					
 					await Response.WriteChunkAsync("Hello World!");

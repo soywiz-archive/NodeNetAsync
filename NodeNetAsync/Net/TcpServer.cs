@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -22,29 +23,33 @@ namespace NodeNetAsync.Net
 		{
 			if (HandleClient != null)
 			{
-				Exception Exception  =null;
+				Exception YieldedException = null;
 
 				try
 				{
 					await HandleClient(Socket);
 				}
+				catch (IOException)
+				{
+				}
 				catch (Exception CatchedException)
 				{
-					Exception = CatchedException;
+					YieldedException = CatchedException;
 				}
-				if (Exception != null)
+
+				if (YieldedException != null)
 				{
-					await Console.Out.WriteLineAsync(String.Format("{0}", Exception));
+					await Console.Out.WriteLineAsync(String.Format("{0}", YieldedException));
 				}
 			}
 		}
 
 		async public Task ListenAsync()
 		{
-			Console.WriteLine(String.Format("Starting socket at {0}", TcpListener.LocalEndpoint));
+			Console.Write(String.Format("Starting socket at {0}...", TcpListener.LocalEndpoint));
 			TcpListener.Start();
 			//await Console.Out.WriteLineAsync(String.Format("Started socket at {0}", TcpListener.LocalEndpoint));
-			Console.WriteLine(String.Format("Started socket at {0}", TcpListener.LocalEndpoint));
+			Console.WriteLine(String.Format("Ok"));
 
 			while (true)
 			{

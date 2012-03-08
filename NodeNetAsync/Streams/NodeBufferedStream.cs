@@ -45,7 +45,7 @@ namespace NodeNetAsync.Streams
 						int Readed = await Stream.ReadAsync(TempBuffer, 0, ToRead);
 						if (Readed <= 0)
 						{
-							throw(new EndOfStreamException());
+							throw(new IOException());
 							//await Task.Delay(1);
 						}
 						RingBuffer.Write(TempBuffer, 0, Readed);

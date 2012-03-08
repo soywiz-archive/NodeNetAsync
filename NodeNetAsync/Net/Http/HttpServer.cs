@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,6 +79,9 @@ namespace NodeNetAsync.Net.Http
 					foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
 
 					if (HandleRequest != null) await HandleRequest(Request, Response);
+				}
+				catch (IOException)
+				{
 				}
 				catch (Exception Exception)
 				{

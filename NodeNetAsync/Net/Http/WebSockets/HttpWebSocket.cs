@@ -16,6 +16,13 @@ namespace NodeNetAsync.Net.Http.WebSockets
 		{
 		}
 	}
+
+	public interface IHttpWebSocketHandler<TType>
+	{
+		Task OnOpen(WebSocket<TType> Socket);
+		Task OnClose(WebSocket<TType> Socket);
+	}
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -29,6 +36,12 @@ namespace NodeNetAsync.Net.Http.WebSockets
 		{
 			this.ConnectHandler = ConnectHandler;
 			this.DisconnectHandler = DisconnectHandler;
+		}
+
+		public HttpWebSocket(IHttpWebSocketHandler<TType> Handler)
+		{
+			this.ConnectHandler = Handler.OnOpen;
+			this.DisconnectHandler = Handler.OnClose;
 		}
 
 		async Task IHttpFilter.Filter(HttpRequest Request, HttpResponse Response)

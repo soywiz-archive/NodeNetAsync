@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NodeNetAsync.Net.Http;
 using NodeNetAsync.Net.Http.Router;
 using NodeNetAsync.Net.Http.Static;
+using NodeNetAsync.Net.Http.WebSockets;
 using NodeNetAsync.Utils;
 
 namespace NodeNetAsync.Examples

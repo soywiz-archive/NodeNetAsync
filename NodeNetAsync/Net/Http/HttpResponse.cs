@@ -28,7 +28,7 @@ namespace NodeNetAsync.Net.Http
 		/// <summary>
 		/// 
 		/// </summary>
-		private TcpSocket Client;
+		public TcpSocket Socket;
 
 		/// <summary>
 		/// 
@@ -61,7 +61,7 @@ namespace NodeNetAsync.Net.Http
 		/// <param name="Client"></param>
 		public HttpResponse(TcpSocket Client)
 		{
-			this.Client = Client;
+			this.Socket = Client;
 		}
 
 		/// <summary>
@@ -85,7 +85,7 @@ namespace NodeNetAsync.Net.Http
 				}
 				else
 				{
-					await Client.WriteAsync(HeadersString, Encoding);
+					await Socket.WriteAsync(HeadersString, Encoding);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ namespace NodeNetAsync.Net.Http
 
 				if (Buffering)
 				{
-					await Client.WriteAsync(Buffer.GetBuffer(), 0, (int)Buffer.Length);
+					await Socket.WriteAsync(Buffer.GetBuffer(), 0, (int)Buffer.Length);
 				}
 			}
 		}
@@ -147,7 +147,7 @@ namespace NodeNetAsync.Net.Http
 				Array.Copy(DataPre, 0, Temp, 0, DataPre.Length);
 				if (Count > 0) Array.Copy(Data, Offset, Temp, 0 + DataPre.Length, Count);
 				Array.Copy(DataPost, 0, Temp, 0 + DataPre.Length + Count, DataPost.Length);
-				await Client.WriteAsync(Temp, 0, (DataPre.Length + Count + DataPost.Length));
+				await Socket.WriteAsync(Temp, 0, (DataPre.Length + Count + DataPost.Length));
 			}
 		}
 

@@ -18,6 +18,12 @@ namespace NodeNetAsync.Net
 		//int Port;
 		SystemTcpClient TcpClient;
 
+		/*
+		public event Action Connected;
+		public event Action Data;
+		public event Action Disconnected;
+		*/
+
 		async static public Task<TcpSocket> CreateAndConnectAsync(string Host, int Port)
 		{
 			var TcpSocket = new TcpSocket(new SystemTcpClient());
@@ -29,6 +35,28 @@ namespace NodeNetAsync.Net
 		{
 			this.TcpClient = new TcpClient();
 			_Init();
+		}
+
+		/*
+		private void _Read()
+		{
+			var BufferSize = 1024;
+			var Buffer = new byte[BufferSize];
+			this.Stream.BeginRead(Buffer, 0, BufferSize, (AsyncResult) =>
+			{
+				var Readed = this.Stream.EndRead(AsyncResult);
+				new ArraySegment<byte>(Buffer, 0, Readed);
+				_Read();
+			}, null);
+		}
+		*/
+
+		private void _Connected()
+		{
+			this.Stream = TcpClient.GetStream();
+			//if (Connected != null) Connected();
+			//this.Stream.BeginRead(
+			//_Read();
 		}
 
 		async public Task ConnectAsync(string Host, int Port)
@@ -49,11 +77,6 @@ namespace NodeNetAsync.Net
 			this.TcpClient.ReceiveBufferSize = 1024;
 			this.TcpClient.SendBufferSize = 1024;
 			this.TcpClient.NoDelay = true;
-		}
-
-		private void _Connected()
-		{
-			this.Stream = TcpClient.GetStream();
 		}
 
 		async public Task CloseAsync()

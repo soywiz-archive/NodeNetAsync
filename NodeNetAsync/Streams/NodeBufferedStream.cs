@@ -43,7 +43,11 @@ namespace NodeNetAsync.Streams
 						// @TODO!! FIXME!! Find a good way of doing this. In the mean time wait a bit to avoid 100% memory usage.
 						if (ToRead == 0) await Task.Delay(1);
 						int Readed = await Stream.ReadAsync(TempBuffer, 0, ToRead);
-						if (Readed == 0) await Task.Delay(1);
+						if (Readed <= 0)
+						{
+							throw(new EndOfStreamException());
+							//await Task.Delay(1);
+						}
 						RingBuffer.Write(TempBuffer, 0, Readed);
 					}
 				}

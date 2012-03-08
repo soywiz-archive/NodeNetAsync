@@ -64,15 +64,17 @@ namespace NodeNetAsync.Examples
 				while (true)
 				{
 					// Read Packet
-					var Packet = await WebSocket.ReadPacketAsStringAsync();
+					var Packet = await WebSocket.ReadPacketAsync();
+					if (Packet.Opcode != WebSocketPacket.OpcodeEnum.TextFrame) continue;
+					var Message = Packet.Text;
 
 					// Skip empty packets
-					if (Packet.Length <= 0) continue;
+					if (Message.Length <= 0) continue;
 
 					// Checks if the first character is a '/'
-					if (Packet[0] == '/')
+					if (Message[0] == '/')
 					{
-						var Parts = Packet.Split(new[] { ' ', '\t' }, 2);
+						var Parts = Message.Split(new[] { ' ', '\t' }, 2);
 						if (Parts.Length < 1) Parts = new[] { "", "" };
 						if (Parts.Length < 2) Parts = new[] { Parts[0], "" };
 
@@ -92,7 +94,7 @@ namespace NodeNetAsync.Examples
 						continue;
 					}
 
-					await SendMessageToAllAsync(String.Format("{0}: {1}", WebSocket.Tag.UserName, Packet));
+					await SendMessageToAllAsync(String.Format("{0}: {1}", WebSocket.Tag.UserName, Message));
 				}
 			}
 
@@ -240,7 +242,7 @@ namespace NodeNetAsync.Examples
 						</head>
 						<body>
 						<div id='connecting'>Connecting...</div>
-						<form action='javascript:false' method='' id='editor' style='display:none;'>
+						<form action='' method='' id='editor' style='display:none;'>
 							<input type='text' name='text' id='input_text' autocomplete='off' />
 							<input type='submit' value='send'>
 							(write <strong>/help</strong> to display help)
@@ -263,6 +265,8 @@ namespace NodeNetAsync.Examples
 								//$('#console').animate({ scrollTop: $('#console')[0].scrollHeight }, 100);
 							}
 
+							if ('MozWebSocket' in window) window.WebSocket = window.MozWebSocket;
+
 							if ('WebSocket' in window) {
 								function reconect() {
 									var ws = new WebSocket('ws://localhost/websocket');
@@ -274,6 +278,7 @@ namespace NodeNetAsync.Examples
 										$('#editor').on('submit', function() {
 											ws.send($('#input_text').val());
 											$('#input_text').val('');
+											return false;
 										});
 										$('#input_text').focus();
 									};

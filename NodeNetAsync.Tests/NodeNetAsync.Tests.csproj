@@ -52,6 +52,7 @@
     <Compile Include="Db\Redis\RedisClientTest.cs" />
     <Compile Include="Json\JsonSerializerTest.cs" />
     <Compile Include="Net\Http\HttpHeadersTest.cs" />
+    <Compile Include="Net\Http\WebSockets\WebSocketPacketTest.cs" />
     <Compile Include="Utils\HtmlTest.cs" />
     <Compile Include="Utils\MimeTypeTest.cs" />
     <Compile Include="Utils\UrlTest.cs" />

@@ -69,7 +69,10 @@
     <Compile Include="Net\Http\IHttpFilter.cs" />
     <Compile Include="Net\Http\Router\HttpRouter.cs" />
     <Compile Include="Net\Http\Static\HttpStaticFileServer.cs" />
-    <Compile Include="Net\Http\WebSockets\HttpWebSocket.cs" />
+    <Compile Include="Net\Http\WebSockets\HttpWebSocketUpgrader.cs" />
+    <Compile Include="Net\Http\WebSockets\IHttpWebSocketUpgraderHandler.cs" />
+    <Compile Include="Net\Http\WebSockets\WebSocket.cs" />
+    <Compile Include="Net\Http\WebSockets\WebSocketPacket.cs" />
     <Compile Include="Net\TestTcpServer.cs" />
     <Compile Include="Streams\NodeBufferedStream.cs" />
     <Compile Include="Net\TcpServer.cs" />

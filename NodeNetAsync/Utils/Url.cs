@@ -8,23 +8,32 @@ namespace NodeNetAsync.Utils
 {
 	public class Url
 	{
-		static public string Normalize(string Url)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Url"></param>
+		/// <returns></returns>
+		static protected string Normalize(string Url)
 		{
 			return Url.Replace('\\', '/');
 		}
 
-		static public string ExpandDirectories(string Url)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Url"></param>
+		/// <returns></returns>
+		static private string ExpandDirectoriesInternal(string Url)
 		{
 			var Components = new List<string>();
-			Url = Normalize(Url);
+			//Console.WriteLine("{0} : {1}", Url, Url.Split('/').Length);
 			foreach (var Component in Url.Split('/'))
 			{
 				switch (Component)
 				{
 					case "":
 					case ".":
-						if (Components.Count == 0) Components.Add("");
-					break;
+						break;
 					case "..": if (Components.Count > 0) Components.RemoveAt(Components.Count - 1); break;
 					default: Components.Add(Component); break;
 				}
@@ -33,11 +42,35 @@ namespace NodeNetAsync.Utils
 			return String.Join("/", Components);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Url"></param>
+		/// <returns></returns>
+		static public string ExpandDirectories(string Url)
+		{
+			Url = Normalize(Url);
+			if (Url.StartsWith("/"))
+			{
+				return "/" + ExpandDirectoriesInternal(Url.Substring(1).TrimStart('/'));
+			}
+			else
+			{
+				return ExpandDirectoriesInternal(Url);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Base"></param>
+		/// <param name="Relative"></param>
+		/// <returns></returns>
 		static public string GetInnerFileRelativeToPath(string Base, string Relative)
 		{
 			Base = ExpandDirectories(Normalize(Base));
 			Relative = ExpandDirectories(Normalize(Relative));
-			return Base + "/" + Relative;
+			return Base.TrimEnd('/') + "/" + Relative.TrimStart('/');
 		}
 	}
 }

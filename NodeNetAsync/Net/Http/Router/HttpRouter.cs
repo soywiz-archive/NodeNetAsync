@@ -17,6 +17,16 @@ namespace NodeNetAsync.Net.Http.Router
 			this.DefaultRoute = Route;
 		}
 
+		public void SetDefaultRoute(IHttpFilter Route)
+		{
+			this.DefaultRoute = Route.Filter;
+		}
+
+		public void AddRoute(string Path, IHttpFilter Route)
+		{
+			AddRoute(Path, Route.Filter);
+		}
+
 		public void AddRoute(string Path, Func<HttpRequest, HttpResponse, Task> Route)
 		{
 			Routes.Add(new Regex("^" + Path + "$", RegexOptions.Compiled), Route);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
+using NodeNetAsync.Utils;
 
 namespace NodeNetAsync.Net.Http
 {
@@ -28,51 +29,72 @@ namespace NodeNetAsync.Net.Http
 		{
 			//Console.WriteLine("HandleClient");
 			// Create Request and Response
-			var Request = new HttpRequest();
-			var Response = new HttpResponse(Client);
 
-			// Read Http
-			var HttpLine = await Client.ReadLineAsync(HeaderEncoding);
-			var HttpParts = HttpLine.Split(new[] { ' ' }, 3);
-			if (HttpParts.Length < 3) throw(new InvalidOperationException("Invalid HTTP Request"));
-			Request.Method = HttpParts[0].ToUpperInvariant();
-			Request.Url = HttpParts[1];
-			Request.HttpVersion = HttpParts[2];
+			bool KeepAlive = true;
 
-			// Read Http Headers
-			while (true)
+			while (KeepAlive)
 			{
-				var HeaderLine = await Client.ReadLineAsync(HeaderEncoding);
-				if (HeaderLine.Length == 0) break;
-				Request.Headers.List.Add(HttpHeader.Parse(HeaderLine));
+				var Request = new HttpRequest();
+				var Response = new HttpResponse(Client);
+
+				// Read Http
+				var HttpLine = await Client.ReadLineAsync(HeaderEncoding);
+				var HttpParts = HttpLine.Split(new[] { ' ' }, 3);
+				if (HttpParts.Length < 3) throw (new InvalidOperationException("Invalid HTTP Request"));
+				Request.Method = HttpParts[0].ToUpperInvariant();
+				Request.Url = HttpParts[1];
+				Request.HttpVersion = HttpParts[2];
+
+				// Read Http Headers
+				while (true)
+				{
+					var HeaderLine = await Client.ReadLineAsync(HeaderEncoding);
+					if (HeaderLine.Length == 0) break;
+					Request.Headers.Add(HttpHeader.Parse(HeaderLine));
+				}
+
+				Exception YieldedException = null;
+
+				Response.Headers["Content-Type"] = "text/html";
+				Response.Headers["Transfer-Encoding"] = "chunked";
+
+				switch (Request.Headers["Connection"].ToLowerInvariant())
+				{
+					case "keep-alive":
+						Response.Headers["Connection"] = "keep-alive";
+						break;
+					default:
+					case "close":
+						Response.Headers["Connection"] = "close";
+						KeepAlive = false;
+						break;
+				}
+
+				//Console.WriteLine("aaaaaaaa");
+
+				try
+				{
+					// Handle Request
+					foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
+
+					if (HandleRequest != null) await HandleRequest(Request, Response);
+				}
+				catch (Exception Exception)
+				{
+					YieldedException = Exception;
+				}
+
+				if (YieldedException != null)
+				{
+					//Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+					await Response.WriteChunkAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
+				}
+
+				// Finalize response
+				await Response.EndAsync();
 			}
 
-			Exception YieldedException = null;
-
-			Response.Headers["Content-Type"] = "text/html";
-			Response.Headers["Transfer-Encoding"] = "chunked";
-			Response.Headers["Connection"] = "close";
-
-			try
-			{
-				// Handle Request
-				foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
-
-				if (HandleRequest != null) await HandleRequest(Request, Response);
-			}
-			catch (Exception Exception)
-			{
-				YieldedException = Exception;
-			}
-
-			if (YieldedException != null)
-			{
-				//Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
-				await Response.WriteChunkAsync(YieldedException.ToString());
-			}
-
-			// Finalize response
-			await Response.EndAsync();
+			await Client.CloseAsync();
 		}
 
 		async public Task ListenAsync(short Port = 80, string Host = "0.0.0.0")

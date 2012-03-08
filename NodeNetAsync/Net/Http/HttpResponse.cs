@@ -11,36 +11,72 @@ namespace NodeNetAsync.Net.Http
 	public class HttpResponse
 	{
 		/// <summary>
-		/// 
+		/// Headers that will be sent as the Response.
 		/// </summary>
 		public HttpHeaders Headers = new HttpHeaders();
 
 		/// <summary>
-		/// 
+		/// Response Code.
 		/// </summary>
-		public int Code;
+		public HttpCode.Ids Code = HttpCode.Ids.Ok;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		public Encoding Encoding = new UTF8Encoding(false);
 
+		/// <summary>
+		/// 
+		/// </summary>
 		private TcpSocket Client;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		MemoryStream Buffer = new MemoryStream();
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool Buffering = false;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsWebSocket = false;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public int WebSocketVersion;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool HeadersSent { get; private set; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Client"></param>
 		public HttpResponse(TcpSocket Client)
 		{
 			this.Client = Client;
 		}
 
-		public bool HeadersSent { get; private set; }
-
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		async public Task SendHeadersAsync()
 		{
 			if (!HeadersSent)
 			{
 				HeadersSent = true;
 
-				var HeadersString = "HTTP/1.1 200 OK\r\n" + Headers.ToString() + "\r\n";
+				var HeadersString = "";
+				HeadersString += "HTTP/1.1 " + (int)Code + " " + HttpCode.GetStringFromId(Code) + "\r\n";
+				HeadersString += Headers.GetEncodeString() + "\r\n";
 
 				if (Buffering)
 				{
@@ -54,18 +90,28 @@ namespace NodeNetAsync.Net.Http
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		async public Task EndAsync()
 		{
-			await WriteChunkAsync("");
-
-			if (Buffering)
+			//if (!IsWebSocket)
 			{
-				await Client.WriteAsync(Buffer.GetBuffer(), 0, (int)Buffer.Length);
-			}
+				await WriteChunkAsync("");
 
-			await Client.CloseAsync();
+				if (Buffering)
+				{
+					await Client.WriteAsync(Buffer.GetBuffer(), 0, (int)Buffer.Length);
+				}
+			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Text"></param>
+		/// <returns></returns>
 		async public Task WriteChunkAsync(string Text)
 		{
 			if (!HeadersSent) await SendHeadersAsync();
@@ -73,9 +119,13 @@ namespace NodeNetAsync.Net.Http
 			await WriteChunkAsync(Encoding.GetBytes(Text));
 		}
 
-		MemoryStream Buffer = new MemoryStream();
-		public bool Buffering = false;
-
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Data"></param>
+		/// <param name="Offset"></param>
+		/// <param name="Count"></param>
+		/// <returns></returns>
 		async public Task WriteChunkAsync(byte[] Data, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Data.Length;
@@ -93,14 +143,19 @@ namespace NodeNetAsync.Net.Http
 			}
 			else
 			{
-				var Temp = new byte[Count + 32];
+				var Temp = new byte[DataPre.Length + Count + DataPost.Length];
 				Array.Copy(DataPre, 0, Temp, 0, DataPre.Length);
 				if (Count > 0) Array.Copy(Data, Offset, Temp, 0 + DataPre.Length, Count);
-				Array.Copy(DataPost, 0, Temp, 0 + DataPre.Length + Data.Length, DataPost.Length);
-				await Client.WriteAsync(Temp, 0, (DataPre.Length + Data.Length + DataPost.Length));
+				Array.Copy(DataPost, 0, Temp, 0 + DataPre.Length + Count, DataPost.Length);
+				await Client.WriteAsync(Temp, 0, (DataPre.Length + Count + DataPost.Length));
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="SourceStream"></param>
+		/// <returns></returns>
 		async public Task CopyFromStreamASync(Stream SourceStream)
 		{
 			int BufferSize = 1024;
@@ -111,6 +166,19 @@ namespace NodeNetAsync.Net.Http
 				if (Readed <= 0) break;
 				await WriteChunkAsync(Buffer, 0, Readed);
 				if (SourceStream.Position >= SourceStream.Length) break;
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="FileName"></param>
+		/// <returns></returns>
+		async public Task StreamFileASync(string FileName)
+		{
+			using (var StreamFile = File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			{
+				await CopyFromStreamASync(StreamFile);
 			}
 		}
 	}

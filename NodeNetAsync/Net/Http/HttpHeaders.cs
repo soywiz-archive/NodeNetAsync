@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,60 @@ namespace NodeNetAsync.Net.Http
 {
 	public class HttpHeaders : IEnumerable<HttpHeader>
 	{
-		public List<HttpHeader> List = new List<HttpHeader>();
+		protected List<HttpHeader> List = new List<HttpHeader>();
+		protected Dictionary<string, int> CurrentItems = new Dictionary<string, int>();
 
 		public IEnumerator<HttpHeader> GetEnumerator()
 		{
 			return List.GetEnumerator();
+		}
+
+		protected void AddOrSet(HttpHeader HttpHeader, bool Replace)
+		{
+			if (Replace && CurrentItems.ContainsKey(HttpHeader.NormalizedKey))
+			{
+				List[CurrentItems[HttpHeader.NormalizedKey]] = HttpHeader;
+			}
+			else
+			{
+				List.Add(HttpHeader);
+				CurrentItems[HttpHeader.NormalizedKey] = List.Count - 1;
+			}
+		}
+
+		public void Add(HttpHeader HttpHeader)
+		{
+			AddOrSet(HttpHeader, Replace: false);
+		}
+		
+		public void Add(string Key, string Value)
+		{
+			AddOrSet(new HttpHeader(Key, Value), Replace: false);
+		}
+
+		public void Set(string Key, string Value)
+		{
+			AddOrSet(new HttpHeader(Key, Value), Replace: true);
+		}
+
+		public string this[string Key]
+		{
+			get
+			{
+				var NormalizedKey = HttpHeader.NormalizeKey(Key);
+				if (CurrentItems.ContainsKey(NormalizedKey))
+				{
+					return List[CurrentItems[NormalizedKey]].Value;
+				}
+				else
+				{
+					return "";
+				}
+			}
+			set
+			{
+				Set(Key, value);
+			}
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -20,26 +70,11 @@ namespace NodeNetAsync.Net.Http
 			return List.GetEnumerator();
 		}
 
-		public void Add(string Key, string Value, bool Replace = false)
+		public string GetEncodeString()
 		{
-			List.Add(new HttpHeader() { Key = Key, Value = Value });
-		}
-
-		public string this[string Key]
-		{
-			get
-			{
-				return List.Where(Item => Item.Key == Key).Select(Item => Item.Key).First();
-			}
-			set
-			{
-				Add(Key, value, true);
-			}
-		}
-
-		public override string ToString()
-		{
-			return String.Join("\r\n", List) + "\r\n";
+			var StringBuilder = new StringBuilder();
+			foreach (var Header in List) StringBuilder.Append(Header.GetEncodeString());
+			return StringBuilder.ToString();
 		}
 	}
 }

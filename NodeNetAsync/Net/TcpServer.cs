@@ -34,7 +34,7 @@ namespace NodeNetAsync.Net
 				}
 				if (Exception != null)
 				{
-					//await Console.Out.WriteLineAsync(String.Format("{0}", Exception));
+					await Console.Out.WriteLineAsync(String.Format("{0}", Exception));
 				}
 			}
 		}

@@ -23,7 +23,7 @@ namespace NodeNetAsync.Examples
 				{
 					Response.Buffering = true;
 
-					Response.Code = 200;
+					Response.Code = HttpCode.Ids.Ok;
 					Response.Headers["Content-Type"] = "text/plain";
 
 					var Redis = await RedisClient.CreateAndConnectAsync(Host: "127.0.0.1");

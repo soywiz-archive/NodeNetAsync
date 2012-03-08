@@ -31,7 +31,7 @@ namespace NodeNetAsync.Examples
 
 				await HttpServer.Create(async (Request, Response) =>
 				{
-					await Response.WriteChunkAsync("Seconds Elapsed: " + SecondsElapsed);
+					await Response.WriteAsync("Seconds Elapsed: " + SecondsElapsed);
 					//GC.Collect();
 				}).ListenAsync(80);
 			});

@@ -13,6 +13,11 @@ namespace NodeNetAsync.Examples
 {
 	public class WebSocketTestProgram
 	{
+		//const int BindPort = 3333;
+		//const string BindAddress = "0.0.0.0";
+		const int BindPort = 80;
+		const string BindAddress = "127.0.0.1";
+
 		public class Client
 		{
 			/// <summary>
@@ -223,7 +228,7 @@ namespace NodeNetAsync.Examples
 				{
 					Response.Buffering = true;
 
-					await Response.WriteChunkAsync(@"
+					await Response.WriteAsync(@"
 						<html>
 						<head>
 							<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js' type='text/javascript'></script>
@@ -269,7 +274,7 @@ namespace NodeNetAsync.Examples
 
 							if ('WebSocket' in window) {
 								function reconect() {
-									var ws = new WebSocket('ws://localhost/websocket');
+									var ws = new WebSocket('ws://' + document.location.host + '/websocket');
 									ws.onopen = function() {
 										console_clear();
 										console_write('green', 'Websocket opened!');
@@ -316,7 +321,7 @@ namespace NodeNetAsync.Examples
 				});
 
 				Server.AddFilterLast(Router);
-				await Server.ListenAsync(80, "127.0.0.1");
+				await Server.ListenAsync(BindPort, BindAddress);
 			});
 		}
 

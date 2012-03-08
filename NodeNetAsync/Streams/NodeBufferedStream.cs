@@ -12,9 +12,14 @@ namespace NodeNetAsync.Streams
 {
 	public class NodeBufferedStream
 	{
+		//protected const int DefaultBufferSize = 32;
+		protected const int DefaultBufferSize = 128;
+		//protected const int DefaultBufferSize = 256;
+		//protected const int DefaultBufferSize = 1024;
+
 		protected Stream Stream;
-		protected byte[] TempBuffer = new byte[1024];
-		protected ByteRingBuffer RingBuffer = new ByteRingBuffer(1024);
+		protected byte[] TempBuffer = new byte[DefaultBufferSize];
+		protected ByteRingBuffer RingBuffer = new ByteRingBuffer(DefaultBufferSize);
 		public Encoding DefaultEncoding = Encoding.UTF8;
 
 		protected NodeBufferedStream()
@@ -26,31 +31,32 @@ namespace NodeNetAsync.Streams
 			this.Stream = Stream;
 		}
 
+		private bool IsForSureDataAvailable
+		{
+			get
+			{
+				if (Stream is NetworkStream) return (Stream as NetworkStream).DataAvailable;
+				return false;
+			}
+		}
+
 		async private Task FillBuffer(int MinimumSize)
 		{
 			MinimumSize = Math.Min(MinimumSize, RingBuffer.Size);
-			while (RingBuffer.AvailableForRead < MinimumSize)
+
+			while (
+				(
+					//IsForSureDataAvailable ||
+					(RingBuffer.AvailableForRead < MinimumSize)
+				)
+				&& (RingBuffer.AvailableForWrite > 0)
+			)
 			{
-				if (RingBuffer.AvailableForWrite > 0)
-				{
-					//if (TcpClient.Available > 0)
-					{
-#if false
-						//int ToRead = Math.Min(RingBuffer.AvailableForWrite, Stream.Available);
-#else
-						int ToRead = RingBuffer.AvailableForWrite;
-#endif
-						// @TODO!! FIXME!! Find a good way of doing this. In the mean time wait a bit to avoid 100% memory usage.
-						if (ToRead == 0) await Task.Delay(1);
-						int Readed = await Stream.ReadAsync(TempBuffer, 0, ToRead);
-						if (Readed <= 0)
-						{
-							throw(new IOException());
-							//await Task.Delay(1);
-						}
-						RingBuffer.Write(TempBuffer, 0, Readed);
-					}
-				}
+				int ToRead = RingBuffer.AvailableForWrite;
+
+				int Readed = await Stream.ReadAsync(TempBuffer, 0, ToRead);
+				if (Readed <= 0) throw (new IOException());
+				RingBuffer.Write(TempBuffer, 0, Readed);
 			}
 		}
 

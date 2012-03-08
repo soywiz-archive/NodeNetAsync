@@ -31,7 +31,7 @@ namespace NodeNetAsync.Examples
 					await Redis.SetAsync("foo", "bar");
 					var Item = await Redis.GetAsync("foo");
 
-					await Response.WriteChunkAsync("TEST: " + Item);
+					await Response.WriteAsync("TEST: " + Item);
 
 					await Redis.CloseAsync();
 				}).ListenAsync(80);

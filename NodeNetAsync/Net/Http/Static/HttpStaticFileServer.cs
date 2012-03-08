@@ -4,31 +4,72 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NodeNetAsync.OS;
 using NodeNetAsync.Utils;
 
 namespace NodeNetAsync.Net.Http.Static
 {
 	public class HttpStaticFileServer : IHttpFilter
 	{
-		protected bool Cache;
-		protected string Path;
+		public struct ResultStruct
+		{
+			public string RealFilePath;
+			public string ContentType;
+			public long Size;
+			public byte[] Data;
+		}
 
-		public HttpStaticFileServer(string Path, bool Cache = false)
+		protected string Path;
+		Cache<string, ResultStruct> Cache = new Cache<string, ResultStruct>();
+		public long CacheSizeThresold = 512 * 1024; // 0.5 MB
+
+		public HttpStaticFileServer(string Path, bool Cache = true)
 		{
 			this.Path = Path;
-			this.Cache = Cache; // Cache not implemented yet
+			this.Cache.Enabled = Cache;
 		}
 
 		async Task IHttpFilter.Filter(HttpRequest Request, HttpResponse Response)
 		{
-			Response.Buffering = true;
 			var FilePath = Url.GetInnerFileRelativeToPath(this.Path, Request.Url);
-			if (Directory.Exists(FilePath))
+
+			var CachedResult = await Cache.GetAsync(FilePath, async () =>
 			{
-				FilePath = FilePath + "/index.html";
+				await Console.Out.WriteLineAsync(String.Format("Caching '{0}'", FilePath));
+
+				if (Directory.Exists(FilePath))
+				{
+					FilePath = FilePath + "/index.html";
+				}
+
+				var FileInfo = await FileSystem.GetFileInfoAsync(FilePath);
+				var Size = FileInfo.Length;
+
+				return new ResultStruct()
+				{
+					RealFilePath = FilePath,
+					ContentType = MimeType.GetFromPath(FilePath),
+					Size = Size,
+					Data = (Size <= CacheSizeThresold) ? (await FileSystem.ReadAllBytesAsync(FilePath)) : null,
+				};
+			});
+
+			Response.Buffering = true;
+
+			Response.Headers["Content-Type"] = CachedResult.ContentType;
+			Response.Headers["Content-Length"] = CachedResult.Size.ToString();
+			Response.ChunkedTransferEncoding = false;
+
+			// Cached byte[]
+			if (CachedResult.Data != null)
+			{
+				await Response.WriteAsync(CachedResult.Data);
 			}
-			Response.Headers["Content-Type"] = MimeType.GetFromPath(FilePath);
-			await Response.StreamFileASync(FilePath);
+			// No cached byte[], stream the file
+			else
+			{
+				await Response.StreamFileASync(CachedResult.RealFilePath);
+			}
 		}
 	}
 }

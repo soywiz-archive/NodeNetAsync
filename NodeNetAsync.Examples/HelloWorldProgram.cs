@@ -20,7 +20,7 @@ namespace NodeNetAsync.Examples
 					Response.Code = HttpCode.OK;
 					Response.Headers["Content-Type"] = "text/plain";
 					
-					await Response.WriteChunkAsync("Hello World!");
+					await Response.WriteAsync("Hello World!");
 				}).ListenAsync(80);
 			});
 		}

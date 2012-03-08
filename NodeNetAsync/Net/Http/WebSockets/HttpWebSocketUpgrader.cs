@@ -80,11 +80,68 @@ namespace NodeNetAsync.Net.Http.WebSockets
 						await this.DisconnectHandler(WebSocket);
 					}
 					break;
+#if false
+				case "":
+					var Key1String = Request.Headers["Sec-WebSocket-Key1"];
+					var Key2String = Request.Headers["Sec-WebSocket-Key2"];
+					if (Key1String != "" && Key2String != "")
+					{
+						var Key3 = new byte[8];
+						await Response.Socket.ReadAsync(Key3, 0, 8);
+
+						var Hash = MD5.Create().ComputeHash(
+							IntToBigEndian(Draft0Hash(Key1String))
+							.Concat(IntToBigEndian(Draft0Hash(Key2String)))
+							.Concat(Key3).ToArray()
+						);
+
+						await Response.Socket.WriteAsync(Hash);
+
+						Response.Buffering = false;
+						Response.IsWebSocket = true;
+						Response.WebSocketVersion = 0;
+
+						Response.Code = HttpCode.WEB_SOCKET_PROTOCOL_HANDSHAKE;
+						Response.CodeString = "WebSocket Protocol Handshake";
+						Response.Headers["Upgrade"] = "WebSocket";
+						Response.Headers["Connection"] = "Upgrade";
+						Response.Headers["Sec-WebSocket-Origin"] = Request.Headers["Origin"];
+						Response.Headers["Sec-WebSocket-Location"] = Request.Headers["Origin"];
+						Response.Headers["Sec-WebSocket-Protocol"] = "true";
+					}
+					else
+					{
+					}
+					break;
+#endif
 				default:
+					//foreach (var Header in Request.Headers) Console.WriteLine(Header);
 					await Console.Out.WriteLineAsync("Unknown WebSocketVersion: " + WebSocketVersion);
 					throw (new Exception("Unknown WebSocketVersion: " + WebSocketVersion));
 					//break;
 			}
+		}
+
+		static public byte[] IntToBigEndian(uint Value)
+		{
+			return new byte[] {
+				(byte)(Value >> 24),
+				(byte)(Value >> 16),
+				(byte)(Value >>  8),
+				(byte)(Value >>  0),
+			};
+		}
+
+		static public uint Draft0Hash(string Str)
+		{
+			var Numbers = "";
+			var SpaceCount = 0U;
+			foreach (var Char in Str)
+			{
+				if (Char >= '0' && Char <= '9') Numbers += Char;
+				if (Char == ' ') SpaceCount++;
+			}
+			return uint.Parse(Numbers) / SpaceCount;
 		}
 	}
 }

@@ -37,26 +37,11 @@ namespace NodeNetAsync.Net
 			_Init();
 		}
 
-		/*
-		private void _Read()
+		internal TcpSocket(SystemTcpClient TcpClient)
 		{
-			var BufferSize = 1024;
-			var Buffer = new byte[BufferSize];
-			this.Stream.BeginRead(Buffer, 0, BufferSize, (AsyncResult) =>
-			{
-				var Readed = this.Stream.EndRead(AsyncResult);
-				new ArraySegment<byte>(Buffer, 0, Readed);
-				_Read();
-			}, null);
-		}
-		*/
-
-		private void _Connected()
-		{
-			this.Stream = TcpClient.GetStream();
-			//if (Connected != null) Connected();
-			//this.Stream.BeginRead(
-			//_Read();
+			this.TcpClient = TcpClient;
+			_Init();
+			if (TcpClient.Connected) _Connected();
 		}
 
 		async public Task ConnectAsync(string Host, int Port)
@@ -65,24 +50,22 @@ namespace NodeNetAsync.Net
 			_Connected();
 		}
 
-		internal TcpSocket(SystemTcpClient TcpClient)
-		{
-			this.TcpClient = TcpClient;
-			_Init();
-			if (TcpClient.Connected) _Connected();
-		}
-
-		private void _Init()
-		{
-			this.TcpClient.ReceiveBufferSize = 1024;
-			this.TcpClient.SendBufferSize = 1024;
-			this.TcpClient.NoDelay = true;
-		}
-
 		async public Task CloseAsync()
 		{
 			await FlushAsync();
 			this.TcpClient.Close();
+		}
+
+		private void _Connected()
+		{
+			this.Stream = TcpClient.GetStream();
+		}
+
+		private void _Init()
+		{
+			this.TcpClient.ReceiveBufferSize = DefaultBufferSize;
+			this.TcpClient.SendBufferSize = DefaultBufferSize;
+			this.TcpClient.NoDelay = true;
 		}
 	}
 }

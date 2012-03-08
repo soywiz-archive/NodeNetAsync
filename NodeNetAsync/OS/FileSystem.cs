@@ -19,5 +19,15 @@ namespace NodeNetAsync.OS
 		{
 			return await Task.Run(() => new FileInfo(FileName));
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="FilePath"></param>
+		/// <returns></returns>
+		async static public Task<byte[]> ReadAllBytesAsync(string FilePath)
+		{
+			return await Task.Run(() => File.ReadAllBytes(FilePath));
+		}
 	}
 }

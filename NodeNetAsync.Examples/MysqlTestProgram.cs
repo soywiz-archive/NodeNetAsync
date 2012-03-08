@@ -9,6 +9,7 @@ using NodeNetAsync.Net.Http;
 using NodeNetAsync.Net.Http.Router;
 using NodeNetAsync.Utils;
 using NodeNetAsync.Json;
+using NodeNetAsync.Net.Http.Static;
 
 namespace NodeNetAsync.Examples
 {
@@ -33,29 +34,14 @@ namespace NodeNetAsync.Examples
 
 					foreach (var Row in await MysqlClient.QueryAsync("SELECT 1 as 'k1', 2 as 'k2', 3 * 999, 'test', 1 as 'Ok';"))
 					{
-						await Response.WriteChunkAsync(Row.ToJsonString());
+						await Response.WriteAsync(Row.ToJsonString());
 					}
 
 					await MysqlClient.CloseAsync();
 				});
 
 				// Default file serving
-				Router.SetDefaultRoute(async (Request, Response) =>
-				{
-					Response.Buffering = true;
-
-					var FilePath = Url.GetInnerFileRelativeToPath(@"C:\projects\csharp\nodenet\NodeNet\static", Request.Url);
-					if (Directory.Exists(FilePath))
-					{
-						FilePath = FilePath + "/index.html";
-					}
-					Response.Headers["Content-Type"] = MimeType.GetFromPath(FilePath);
-
-					using (var TestFile = File.OpenRead(FilePath))
-					{
-						await Response.CopyFromStreamASync(TestFile);
-					}
-				});
+				Router.SetDefaultRoute(new HttpStaticFileServer(Path: @"C:\projects\csharp\NodeNet\static", Cache: true));
 
 				Server.AddFilterLast(Router);
 				await Server.ListenAsync(80, "127.0.0.1");

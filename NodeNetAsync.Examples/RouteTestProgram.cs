@@ -23,7 +23,7 @@ namespace NodeNetAsync.Examples
 
 				Router.AddRoute("/test", async (Request, Response) =>
 				{
-					await Response.WriteChunkAsync("Test!");
+					await Response.WriteAsync("Test!");
 				});
 
 				// Default file serving

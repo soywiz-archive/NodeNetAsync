@@ -58,6 +58,29 @@ namespace NodeNetAsync.Net.Http
 		/// <summary>
 		/// 
 		/// </summary>
+		private bool _ChunkedTransferEncoding = true;
+
+		/// <summary>
+		/// If Content-Length is setted.
+		/// </summary>
+		public bool ChunkedTransferEncoding
+		{
+			get
+			{
+				return _ChunkedTransferEncoding;
+			}
+			set
+			{
+				if (!HeadersSent)
+				{
+					_ChunkedTransferEncoding = value;
+				}
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="Client"></param>
 		public HttpResponse(TcpSocket Client)
 		{
@@ -73,6 +96,15 @@ namespace NodeNetAsync.Net.Http
 			if (!HeadersSent)
 			{
 				HeadersSent = true;
+
+				if (ChunkedTransferEncoding)
+				{
+					Headers["Transfer-Encoding"] = "chunked";
+				}
+				else
+				{
+					//Headers.Remove("Transfer-Encoding");
+				}
 
 				var HeadersString = "";
 				HeadersString += "HTTP/1.1 " + (int)Code + " " + HttpCodeUtils.GetStringFromId(Code) + "\r\n";
@@ -98,7 +130,7 @@ namespace NodeNetAsync.Net.Http
 		{
 			//if (!IsWebSocket)
 			{
-				await WriteChunkAsync("");
+				await WriteAsync("");
 
 				if (Buffering)
 				{
@@ -112,11 +144,11 @@ namespace NodeNetAsync.Net.Http
 		/// </summary>
 		/// <param name="Text"></param>
 		/// <returns></returns>
-		async public Task WriteChunkAsync(string Text)
+		async public Task WriteAsync(string Text)
 		{
 			if (!HeadersSent) await SendHeadersAsync();
 			//await Client.WriteAsync(Convert.ToString(Encoding.GetByteCount(Text), 16).ToUpper() + "\r\n" + Text + "\r\n", Encoding);
-			await WriteChunkAsync(Encoding.GetBytes(Text));
+			await WriteAsync(Encoding.GetBytes(Text));
 		}
 
 		/// <summary>
@@ -126,28 +158,42 @@ namespace NodeNetAsync.Net.Http
 		/// <param name="Offset"></param>
 		/// <param name="Count"></param>
 		/// <returns></returns>
-		async public Task WriteChunkAsync(byte[] Data, int Offset = 0, int Count = -1)
+		async public Task WriteAsync(byte[] Data, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Data.Length;
 
-			var DataPre = Encoding.GetBytes(Convert.ToString(Count, 16).ToUpper() + "\r\n");
-			var DataPost = Encoding.GetBytes("\r\n");
-
 			if (!HeadersSent) await SendHeadersAsync();
 
-			if (Buffering)
+			if (ChunkedTransferEncoding)
 			{
-				Buffer.Write(DataPre, 0, DataPre.Length);
-				Buffer.Write(Data, Offset, Count);
-				Buffer.Write(DataPost, 0, DataPost.Length);
+				var DataPre = Encoding.GetBytes(Convert.ToString(Count, 16).ToUpper() + "\r\n");
+				var DataPost = Encoding.GetBytes("\r\n");
+
+				if (Buffering)
+				{
+					Buffer.Write(DataPre, 0, DataPre.Length);
+					Buffer.Write(Data, Offset, Count);
+					Buffer.Write(DataPost, 0, DataPost.Length);
+				}
+				else
+				{
+					var Temp = new byte[DataPre.Length + Count + DataPost.Length];
+					Array.Copy(DataPre, 0, Temp, 0, DataPre.Length);
+					if (Count > 0) Array.Copy(Data, Offset, Temp, 0 + DataPre.Length, Count);
+					Array.Copy(DataPost, 0, Temp, 0 + DataPre.Length + Count, DataPost.Length);
+					await Socket.WriteAsync(Temp, 0, (DataPre.Length + Count + DataPost.Length));
+				}
 			}
 			else
 			{
-				var Temp = new byte[DataPre.Length + Count + DataPost.Length];
-				Array.Copy(DataPre, 0, Temp, 0, DataPre.Length);
-				if (Count > 0) Array.Copy(Data, Offset, Temp, 0 + DataPre.Length, Count);
-				Array.Copy(DataPost, 0, Temp, 0 + DataPre.Length + Count, DataPost.Length);
-				await Socket.WriteAsync(Temp, 0, (DataPre.Length + Count + DataPost.Length));
+				if (Buffering)
+				{
+					Buffer.Write(Data, Offset, Count);
+				}
+				else
+				{
+					await Socket.WriteAsync(Data, Offset, Count);
+				}
 			}
 		}
 
@@ -164,7 +210,7 @@ namespace NodeNetAsync.Net.Http
 			{
 				int Readed = await SourceStream.ReadAsync(Buffer, 0, BufferSize);
 				if (Readed <= 0) break;
-				await WriteChunkAsync(Buffer, 0, Readed);
+				await WriteAsync(Buffer, 0, Readed);
 				if (SourceStream.Position >= SourceStream.Length) break;
 			}
 		}

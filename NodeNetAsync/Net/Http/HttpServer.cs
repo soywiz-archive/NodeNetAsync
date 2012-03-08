@@ -57,7 +57,6 @@ namespace NodeNetAsync.Net.Http
 				Exception YieldedException = null;
 
 				Response.Headers["Content-Type"] = "text/html";
-				Response.Headers["Transfer-Encoding"] = "chunked";
 
 				switch (Request.Headers["Connection"].ToLowerInvariant())
 				{
@@ -91,7 +90,7 @@ namespace NodeNetAsync.Net.Http
 				if (YieldedException != null)
 				{
 					//Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
-					await Response.WriteChunkAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
+					await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
 				}
 
 				// Finalize response

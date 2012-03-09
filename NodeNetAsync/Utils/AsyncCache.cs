@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Utils
 {
-	public class Cache<TKey, TValue>
+	public class AsyncCache<TKey, TValue>
 	{
 		public class Entry
 		{
@@ -17,6 +17,7 @@ namespace NodeNetAsync.Utils
 		protected Dictionary<TKey, Entry> Items = new Dictionary<TKey, Entry>();
 
 		private bool _Enabled;
+
 		public bool Enabled {
 			get
 			{
@@ -27,6 +28,11 @@ namespace NodeNetAsync.Utils
 				_Enabled = value;
 				if (_Enabled == false) Items.Clear();
 			}
+		}
+
+		public AsyncCache(bool Enabled = true)
+		{
+			this.Enabled = Enabled;
 		}
 
 		async public Task<TValue> GetAsync(TKey Key, Func<Task<TValue>> Generator)
@@ -42,10 +48,11 @@ namespace NodeNetAsync.Utils
 			else
 			{
 				CurrentEntry = new Entry();
+				if (Enabled) Items[Key] = CurrentEntry;
+				
 				CurrentEntry.Task = Generator();
 				CurrentEntry.Value = await CurrentEntry.Task;
 				CurrentEntry.Task = null;
-				if (Enabled) Items[Key] = CurrentEntry;
 			}
 
 			return CurrentEntry.Value;

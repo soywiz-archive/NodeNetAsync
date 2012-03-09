@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
+using NodeNetAsync.Streams;
 
 namespace NodeNetAsync.Net.Http
 {
-	public class HttpResponse
+	public class HttpResponse : IAsyncWriter
 	{
 		/// <summary>
 		/// Headers that will be sent as the Response.

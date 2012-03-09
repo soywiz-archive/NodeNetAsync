@@ -20,7 +20,7 @@ namespace NodeNetAsync.Net.Http.Static
 		}
 
 		protected string Path;
-		Cache<string, ResultStruct> Cache = new Cache<string, ResultStruct>();
+		AsyncCache<string, ResultStruct> Cache = new AsyncCache<string, ResultStruct>();
 		public long CacheSizeThresold = 512 * 1024; // 0.5 MB
 
 		public HttpStaticFileServer(string Path, bool Cache = true)

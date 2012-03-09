@@ -14,9 +14,9 @@ namespace NodeNetAsync.Examples
 	public class WebSocketTestProgram
 	{
 		//const int BindPort = 3333;
-		//const string BindAddress = "0.0.0.0";
+		const string BindAddress = "0.0.0.0";
 		const int BindPort = 80;
-		const string BindAddress = "127.0.0.1";
+		//const string BindAddress = "127.0.0.1";
 
 		public class Client
 		{

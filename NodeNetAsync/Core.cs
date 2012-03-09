@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,13 +16,21 @@ namespace NodeNetAsync
 		/// <param name="Action"></param>
 		static public void Loop(Func<Task> Action)
 		{
-			try
+			//if (Debugger.IsAttached)
+			if (false)
 			{
 				Action().Wait();
 			}
-			catch (Exception Exception)
+			else
 			{
-				Console.WriteLine(Exception);
+				try
+				{
+					Action().Wait();
+				}
+				catch (Exception Exception)
+				{
+					Console.WriteLine(Exception);
+				}
 			}
 			while (true) Thread.Sleep(int.MaxValue);
 		}

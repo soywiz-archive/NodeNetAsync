@@ -10,7 +10,7 @@ using NodeNetAsync.Utils;
 
 namespace NodeNetAsync.Streams
 {
-	public class NodeBufferedStream
+	public class NodeBufferedStream : IAsyncWriter
 	{
 		//protected const int DefaultBufferSize = 32;
 		protected const int DefaultBufferSize = 128;

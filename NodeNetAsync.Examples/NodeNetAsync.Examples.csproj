@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>NodeNetAsync.Examples.WebSocketTestProgram</StartupObject>
+    <StartupObject>NodeNetAsync.Examples.TemplateTestProgram</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -50,6 +50,7 @@
     <Compile Include="RedisTestProgram.cs" />
     <Compile Include="RouteTestProgram.cs" />
     <Compile Include="SetIntervalTestProgram.cs" />
+    <Compile Include="TemplateTestProgram.cs" />
     <Compile Include="WebSocketTestProgram.cs" />
   </ItemGroup>
   <ItemGroup>

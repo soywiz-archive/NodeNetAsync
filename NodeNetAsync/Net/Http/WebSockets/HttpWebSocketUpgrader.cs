@@ -54,7 +54,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 						Response.Buffering = false;
 						Response.IsWebSocket = true;
 						Response.WebSocketVersion = int.Parse(WebSocketVersion);
-						Response.Code = HttpCode.WEB_SOCKET_PROTOCOL_HANDSHAKE;
+						Response.SetHttpCode(HttpCode.SWITCHING_PROTOCOLS_101, "Web Socket Protocol Handshake");
 						Response.Headers["Upgrade"] = "WebSocket";
 						Response.Headers["Connection"] = "Upgrade";
 						Response.Headers["Sec-WebSocket-Accept"] = ComputedHash;

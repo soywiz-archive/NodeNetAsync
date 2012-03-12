@@ -26,7 +26,7 @@ namespace NodeNetAsync.Examples
 				{
 					Response.Buffering = true;
 
-					Response.Code = HttpCode.OK;
+					Response.SetHttpCode(HttpCode.OK_200);
 					Response.Headers["Content-Type"] = "application/json";
 
 					var MysqlClient = new MysqlClient("FEDORADEV", User: "test", Password: "test");

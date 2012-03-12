@@ -17,10 +17,15 @@ namespace NodeNetAsync.Streams
 		//protected const int DefaultBufferSize = 256;
 		//protected const int DefaultBufferSize = 1024;
 
-		protected Stream Stream;
+		public Stream Stream { get; protected set; }
 		protected byte[] TempBuffer = new byte[DefaultBufferSize];
 		protected ByteRingBuffer RingBuffer = new ByteRingBuffer(DefaultBufferSize);
 		public Encoding DefaultEncoding = Encoding.UTF8;
+
+		public void UnsafeSetStream(Stream Stream)
+		{
+			this.Stream = Stream;
+		}
 
 		protected NodeBufferedStream()
 		{

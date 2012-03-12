@@ -16,12 +16,14 @@ namespace NodeNetAsync
 		/// <param name="Action"></param>
 		static public void Loop(Func<Task> Action)
 		{
+#if false
 			//if (Debugger.IsAttached)
 			if (false)
 			{
 				Action().Wait();
 			}
 			else
+#endif
 			{
 				try
 				{

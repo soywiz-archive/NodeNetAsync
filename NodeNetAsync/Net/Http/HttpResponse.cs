@@ -17,9 +17,27 @@ namespace NodeNetAsync.Net.Http
 		public HttpHeaders Headers = new HttpHeaders();
 
 		/// <summary>
-		/// Response Code.
+		/// Response Code Integer. Example: 200
 		/// </summary>
-		public HttpCode Code = HttpCode.OK;
+		public int HttpCodeNumber { get; private set; }
+
+		/// <summary>
+		/// Response Code String. Example: 'OK'
+		/// </summary>
+		public string HttpCodeString { get; private set; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Code"></param>
+		/// <param name="CodeString"></param>
+		public void SetHttpCode(HttpCode Code, string CodeString = null)
+		{
+			if (CodeString == null) CodeString = HttpCodeUtils.GetStringFromId((HttpCode)Code);
+			
+			this.HttpCodeNumber = (int)Code;
+			this.HttpCodeString = CodeString;
+		}
 
 		/// <summary>
 		/// 
@@ -108,7 +126,7 @@ namespace NodeNetAsync.Net.Http
 				}
 
 				var HeadersString = "";
-				HeadersString += "HTTP/1.1 " + (int)Code + " " + HttpCodeUtils.GetStringFromId(Code) + "\r\n";
+				HeadersString += "HTTP/1.1 " + this.HttpCodeNumber + " " + this.HttpCodeString + "\r\n";
 				HeadersString += Headers.GetEncodeString() + "\r\n";
 
 				if (Buffering)
@@ -227,6 +245,27 @@ namespace NodeNetAsync.Net.Http
 			{
 				await CopyFromStreamASync(StreamFile);
 			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Url"></param>
+		public void Redirect(string Url, HttpCode HttpCode)
+		{
+			if ((int)HttpCode < 300 || (int)HttpCode > 399) throw (new Exception("Invalid HTTP Code for Redirection : " + HttpCode));
+			Headers["Location"] = Url;
+			throw (new HttpException(HttpCode));
+		}
+	}
+
+	public class HttpException : Exception
+	{
+		public HttpCode HttpCode { get; private set; }
+
+		public HttpException(HttpCode HttpCode)
+		{
+			this.HttpCode = HttpCode;
 		}
 	}
 }

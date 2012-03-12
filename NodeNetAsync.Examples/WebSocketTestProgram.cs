@@ -318,6 +318,7 @@ namespace NodeNetAsync.Examples
 
 				Router.AddRoute("/favicon.ico", async (Request, Response) =>
 				{
+					await Task.Yield();
 				});
 
 				Server.AddFilterLast(Router);

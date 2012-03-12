@@ -15,6 +15,7 @@ namespace NodeNetAsync.Tests.Db.Mysql
 			await TestTcpServer.Create(
 				Server: async (Client) =>
 				{
+					await Task.Yield();
 				},
 				Client: async (TestPort) =>
 				{

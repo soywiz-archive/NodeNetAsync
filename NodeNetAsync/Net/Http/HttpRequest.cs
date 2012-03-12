@@ -27,5 +27,10 @@ namespace NodeNetAsync.Net.Http
 		/// 
 		/// </summary>
 		public string HttpVersion;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool Ssl;
 	}
 }

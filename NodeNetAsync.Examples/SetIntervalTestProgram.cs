@@ -20,6 +20,7 @@ namespace NodeNetAsync.Examples
 				Core.SetInterval(async () =>
 				{
 					SecondsElapsed++;
+					await Task.Yield();
 				}, TimeSpan.FromMilliseconds(1000));
 
 				/*

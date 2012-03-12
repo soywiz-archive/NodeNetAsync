@@ -26,10 +26,36 @@ namespace NodeNetAsync.Net.Http
 			this.HandleRequest = HandleRequest;
 		}
 
+		async protected virtual Task ReadHeadersAsync(TcpSocket Client, HttpRequest Request, HttpResponse Response)
+		{
+			// Read Http
+			var HttpLine = await Client.ReadLineAsync(HeaderEncoding);
+			var HttpParts = HttpLine.Split(new[] { ' ' }, 3);
+			if (HttpParts.Length < 3) throw (new InvalidOperationException("Invalid HTTP Request"));
+			Request.Method = HttpParts[0].ToUpperInvariant();
+			Request.Url = HttpParts[1];
+			Request.HttpVersion = HttpParts[2];
+
+			// Read Http Headers
+			while (true)
+			{
+				var HeaderLine = await Client.ReadLineAsync(HeaderEncoding);
+				if (HeaderLine.Length == 0) break;
+				Request.Headers.Add(HttpHeader.Parse(HeaderLine));
+			}
+		}
+
+		async protected virtual Task InitializeConnectionAsync(TcpSocket Client)
+		{
+			await Task.Yield();
+		}
+
 		async private Task TcpServer_HandleClient(TcpSocket Client)
 		{
 			//Console.WriteLine("HandleClient");
 			// Create Request and Response
+
+			await InitializeConnectionAsync(Client);
 
 			bool KeepAlive = true;
 
@@ -38,21 +64,7 @@ namespace NodeNetAsync.Net.Http
 				var Request = new HttpRequest();
 				var Response = new HttpResponse(Client);
 
-				// Read Http
-				var HttpLine = await Client.ReadLineAsync(HeaderEncoding);
-				var HttpParts = HttpLine.Split(new[] { ' ' }, 3);
-				if (HttpParts.Length < 3) throw (new InvalidOperationException("Invalid HTTP Request"));
-				Request.Method = HttpParts[0].ToUpperInvariant();
-				Request.Url = HttpParts[1];
-				Request.HttpVersion = HttpParts[2];
-
-				// Read Http Headers
-				while (true)
-				{
-					var HeaderLine = await Client.ReadLineAsync(HeaderEncoding);
-					if (HeaderLine.Length == 0) break;
-					Request.Headers.Add(HttpHeader.Parse(HeaderLine));
-				}
+				await ReadHeadersAsync(Client, Request, Response);
 
 				Exception YieldedException = null;
 
@@ -79,6 +91,10 @@ namespace NodeNetAsync.Net.Http
 
 					if (HandleRequest != null) await HandleRequest(Request, Response);
 				}
+				catch (HttpException HttpException)
+				{
+					Response.SetHttpCode(HttpException.HttpCode);
+				}
 				catch (IOException)
 				{
 				}
@@ -100,7 +116,7 @@ namespace NodeNetAsync.Net.Http
 			await Client.CloseAsync();
 		}
 
-		async public Task ListenAsync(ushort Port = 80, string Host = "0.0.0.0")
+		async public virtual Task ListenAsync(ushort Port = 80, string Host = "0.0.0.0")
 		{
 			this.TcpServer = new TcpServer(Port, Host);
 			this.TcpServer.HandleClient += TcpServer_HandleClient;

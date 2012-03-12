@@ -46,6 +46,8 @@
     <Compile Include="Db\Redis\RedisResponseException.cs" />
     <Compile Include="Json\JsonExtensions.cs" />
     <Compile Include="Json\JsonSerializer.cs" />
+    <Compile Include="Net\Https\HttpsServer.Certificate.cs" />
+    <Compile Include="Net\Https\HttpsServer.cs" />
     <Compile Include="Net\Http\HttpCode.cs" />
     <Compile Include="Net\Http\HttpHeader.cs" />
     <Compile Include="Net\Http\HttpHeaders.cs" />
@@ -134,6 +136,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Db\Redis\RedisClient.Commands.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Net\TcpServer.Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

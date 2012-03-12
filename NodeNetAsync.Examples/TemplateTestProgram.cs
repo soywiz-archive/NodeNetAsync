@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using CSharpUtils.Templates.Runtime;
 using CSharpUtils.Templates.TemplateProvider;
 using NodeNetAsync.Net.Http;
 using NodeNetAsync.Net.Http.Router;
+using NodeNetAsync.Net.Https;
 using NodeNetAsync.Views;
 
 namespace NodeNetAsync.Examples

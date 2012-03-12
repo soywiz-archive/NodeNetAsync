@@ -15,6 +15,8 @@ namespace NodeNetAsync.Json
 		static public JsonValue Serialize(object Object)
 		{
 			var Type = Object.GetType();
+
+			//Console.WriteLine(String.Join(";;", Type.getfie().Select(Item => Item.ToString()).ToArray()));
 			
 			// Primitive
 			if (Type.IsPrimitive)
@@ -65,6 +67,10 @@ namespace NodeNetAsync.Json
 			foreach (var Field in Type.GetFields())
 			{
 				ObjectItems.Add(new KeyValuePair<string,JsonValue>(Field.Name, Serialize(Field.GetValue(Object))));
+			}
+			foreach (var Property in Type.GetProperties())
+			{
+				ObjectItems.Add(new KeyValuePair<string, JsonValue>(Property.Name, Serialize(Property.GetValue(Object))));
 			}
 			return new JsonObject(ObjectItems);
 		}

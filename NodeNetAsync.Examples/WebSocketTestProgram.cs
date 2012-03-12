@@ -46,7 +46,7 @@ namespace NodeNetAsync.Examples
 			/// </summary>
 			/// <param name="WebSocket"></param>
 			/// <returns></returns>
-			async public Task OnOpen(WebSocket<Client> WebSocket)
+			async public Task OnOpenAsync(WebSocket<Client> WebSocket)
 			{
 				// Creates a client and add the socket to the list of sockets.
 				WebSocket.Tag = new Client();
@@ -154,7 +154,7 @@ namespace NodeNetAsync.Examples
 			/// </summary>
 			/// <param name="WebSocket"></param>
 			/// <returns></returns>
-			async public Task OnClose(WebSocket<Client> WebSocket)
+			async public Task OnCloseAsync(WebSocket<Client> WebSocket)
 			{
 				ConnectedSockets.Remove(WebSocket);
 				await SendMessageToAllExceptAsync(String.Format("Global: User '{0}' disconnected", WebSocket.Tag.UserName));

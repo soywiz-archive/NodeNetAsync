@@ -17,6 +17,8 @@ namespace NodeNetAsync.Utils
 			switch (Ext.Substring(1))
 			{
 				case "txt": return "text/plain";
+				case "js": return "text/javascript";
+				case "css": return "text/css";
 				case "php":
 				case "htm": case "html": return "text/html";
 				case "ico": return "image/png";

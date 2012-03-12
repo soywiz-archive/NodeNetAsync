@@ -35,8 +35,8 @@ namespace NodeNetAsync.Net.Http.WebSockets
 
 		public HttpWebSocket(IHttpWebSocketHandler<TType> Handler)
 		{
-			this.ConnectHandler = Handler.OnOpen;
-			this.DisconnectHandler = Handler.OnClose;
+			this.ConnectHandler = Handler.OnOpenAsync;
+			this.DisconnectHandler = Handler.OnCloseAsync;
 		}
 
 		async Task IHttpFilter.Filter(HttpRequest Request, HttpResponse Response)
@@ -122,7 +122,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 			}
 		}
 
-		static public byte[] IntToBigEndian(uint Value)
+		static private byte[] IntToBigEndian(uint Value)
 		{
 			return new byte[] {
 				(byte)(Value >> 24),
@@ -132,7 +132,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 			};
 		}
 
-		static public uint Draft0Hash(string Str)
+		static private uint Draft0Hash(string Str)
 		{
 			var Numbers = "";
 			var SpaceCount = 0U;

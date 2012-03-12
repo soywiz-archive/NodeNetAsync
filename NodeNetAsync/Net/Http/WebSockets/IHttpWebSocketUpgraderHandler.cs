@@ -8,7 +8,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 {
 	public interface IHttpWebSocketHandler<TType>
 	{
-		Task OnOpen(WebSocket<TType> Socket);
-		Task OnClose(WebSocket<TType> Socket);
+		Task OnOpenAsync(WebSocket<TType> Socket);
+		Task OnCloseAsync(WebSocket<TType> Socket);
 	}
 }

@@ -15,6 +15,20 @@ namespace NodeNetAsync.Db.Mysql
 		/// 
 		/// </summary>
 		/// <returns></returns>
+		async public Task QuitAsync()
+		{
+			await AsyncTaskQueue.EnqueueAsync(async () =>
+			{
+				var OutPacket = new MysqlPacket(ConnectionEncoding, 0);
+				OutPacket.WriteNumber(1, (uint)MysqlCommandEnum.COM_QUIT);
+				await SendPacketAsync(OutPacket);
+			});
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		async public Task PingAsync()
 		{
 			await AsyncTaskQueue.EnqueueAsync(async () =>

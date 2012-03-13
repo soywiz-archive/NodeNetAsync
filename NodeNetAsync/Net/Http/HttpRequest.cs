@@ -32,5 +32,10 @@ namespace NodeNetAsync.Net.Http
 		/// 
 		/// </summary>
 		public bool Ssl;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public int ConnectionId;
 	}
 }

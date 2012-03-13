@@ -13,6 +13,7 @@ namespace NodeNetAsync.Utils
 		public int Peek(TType[] Buffer, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Buffer.Length - Offset;
+			Count = Math.Min(Count, List.Length);
 			if (Count > 0)
 			{
 				Array.Copy(this.List, 0, Buffer, Offset, Count);

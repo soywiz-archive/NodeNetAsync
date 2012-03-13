@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,8 +31,27 @@ namespace NodeNetAsync.Net.Http
 		{
 			// Read Http
 			var HttpLine = await Client.ReadLineAsync(HeaderEncoding);
+			if (Debugger.IsAttached)
+			{
+				Console.WriteLine("Connection({0}) : {1}", Request.ConnectionId, HttpLine);
+			}
+
+			if (HttpLine == "") throw(new IOException(""));
+
+			/*
+			if (HttpLine == "")
+			{
+				Console.WriteLine("  Empty!");
+				HttpLine = await Client.ReadLineAsync(HeaderEncoding);
+				Console.WriteLine("  Connection({0}) : {1}", Request.ConnectionId, HttpLine);
+			}
+			*/
+
 			var HttpParts = HttpLine.Split(new[] { ' ' }, 3);
-			if (HttpParts.Length < 3) throw (new InvalidOperationException("Invalid HTTP Request"));
+			if (HttpParts.Length < 3)
+			{
+				throw (new InvalidOperationException(String.Format("Invalid HTTP Request Connection({0}) : {1}", Request.ConnectionId, HttpLine)));
+			}
 			Request.Method = HttpParts[0].ToUpperInvariant();
 			Request.Url = HttpParts[1];
 			Request.HttpVersion = HttpParts[2];
@@ -50,67 +70,95 @@ namespace NodeNetAsync.Net.Http
 			await Task.Yield();
 		}
 
+		static int LastConnectionId = 0;
+
 		async private Task TcpServer_HandleClient(TcpSocket Client)
 		{
+			Exception YieldedException = null;
+
 			//Console.WriteLine("HandleClient");
 			// Create Request and Response
+			int ConnectionId = LastConnectionId++;
 
 			await InitializeConnectionAsync(Client);
 
 			bool KeepAlive = true;
-
-			while (KeepAlive)
+			//bool KeepAlive = false;
+			try
 			{
-				var Request = new HttpRequest();
-				var Response = new HttpResponse(Client);
-
-				await ReadHeadersAsync(Client, Request, Response);
-
-				Exception YieldedException = null;
-
-				Response.Headers["Content-Type"] = "text/html";
-
-				switch (Request.Headers["Connection"].ToLowerInvariant())
+				do
 				{
-					case "keep-alive":
-						Response.Headers["Connection"] = "keep-alive";
-						break;
-					default:
-					case "close":
-						Response.Headers["Connection"] = "close";
-						KeepAlive = false;
-						break;
-				}
+					var Request = new HttpRequest();
+					var Response = new HttpResponse(Client);
+					Request.ConnectionId = ConnectionId;
 
-				//Console.WriteLine("aaaaaaaa");
+					await ReadHeadersAsync(Client, Request, Response);
 
-				try
-				{
-					// Handle Request
-					foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
+					Response.Headers["Content-Type"] = "text/html";
 
-					if (HandleRequest != null) await HandleRequest(Request, Response);
-				}
-				catch (HttpException HttpException)
-				{
-					Response.SetHttpCode(HttpException.HttpCode);
-				}
-				catch (IOException)
-				{
-				}
-				catch (Exception Exception)
-				{
-					YieldedException = Exception;
-				}
+					switch (Request.Headers["Connection"].ToLowerInvariant())
+					{
+						case "keep-alive":
+							Response.Headers["Connection"] = "keep-alive";
+							break;
+						default:
+						case "close":
+							Response.Headers["Connection"] = "close";
+							KeepAlive = false;
+							break;
+					}
 
-				if (YieldedException != null)
-				{
-					//Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
-					await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
-				}
+					//Console.WriteLine("aaaaaaaa");
 
-				// Finalize response
-				await Response.EndAsync();
+					try
+					{
+						// Handle Request
+						foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
+
+						if (HandleRequest != null) await HandleRequest(Request, Response);
+					}
+					catch (HttpException HttpException)
+					{
+						Response.SetHttpCode(HttpException.HttpCode);
+					}
+					catch (IOException)
+					{
+					}
+					catch (Exception Exception)
+					{
+						YieldedException = Exception;
+					}
+
+					if (YieldedException != null)
+					{
+						if (Debugger.IsAttached)
+						{
+							Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+						}
+						await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
+						YieldedException = null;
+					}
+
+					// Finalize response
+					await Response.EndAsync();
+				} while (KeepAlive);
+			}
+			catch (IOException)
+			{
+			}
+			catch (Exception Exception)
+			{
+				YieldedException = Exception;
+			}
+
+			if (YieldedException != null)
+			{
+				//Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+				if (Debugger.IsAttached)
+				{
+					Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+				}
+				YieldedException = null;
 			}
 
 			await Client.CloseAsync();

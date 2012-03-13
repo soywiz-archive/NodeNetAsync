@@ -72,6 +72,9 @@ namespace NodeNetAsync.Net.Http.WebSockets
 						{
 							await this.ConnectHandler(WebSocket);
 						}
+						catch (IOException)
+						{
+						}
 						catch (Exception Exception)
 						{
 							YieldedException = Exception;

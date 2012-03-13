@@ -102,7 +102,7 @@ namespace NodeNetAsync.Net.Https
 
 		protected override async Task ReadHeadersAsync(TcpSocket Client, HttpRequest Request, HttpResponse Response)
 		{
-			Request.Ssl = true;
+			Request.Schema = "https";
 			await base.ReadHeadersAsync(Client, Request, Response);
 		}
 

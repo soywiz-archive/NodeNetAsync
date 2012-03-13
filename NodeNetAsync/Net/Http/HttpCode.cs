@@ -504,7 +504,7 @@ namespace NodeNetAsync.Net.Http
 			{
 				case HttpCode.OK_200: return "OK";
 				case HttpCode.NOT_FOUND_404: return "Not Found";
-				case HttpCode.SWITCHING_PROTOCOLS_101: return "Web Socket Protocol Handshake";
+				case HttpCode.SWITCHING_PROTOCOLS_101: return "Switching Protocols";
 				default: return "Unknwon";
 			}
 		}

@@ -16,6 +16,9 @@ namespace NodeNetAsync.Net.Http
 
 		public event Func<HttpRequest, HttpResponse, Task> HandleRequest;
 		static Encoding HeaderEncoding = Encoding.GetEncoding("ISO-8859-1");
+		public ushort Port { get; protected set; }
+		public string Host { get; protected set; }
+
 
 		static public HttpServer Create(Func<HttpRequest, HttpResponse, Task> HandleRequest)
 		{
@@ -90,6 +93,8 @@ namespace NodeNetAsync.Net.Http
 				{
 					var Request = new HttpRequest();
 					var Response = new HttpResponse(Client);
+
+					Request.Port = this.Port;
 					Request.ConnectionId = ConnectionId;
 
 					await ReadHeadersAsync(Client, Request, Response);
@@ -113,13 +118,14 @@ namespace NodeNetAsync.Net.Http
 					try
 					{
 						// Handle Request
-						foreach (var Filter in FilterList) await Filter.Filter(Request, Response);
+						foreach (var Filter in FilterList) await Filter.FilterAsync(Request, Response);
 
 						if (HandleRequest != null) await HandleRequest(Request, Response);
 					}
 					catch (HttpException HttpException)
 					{
 						Response.SetHttpCode(HttpException.HttpCode);
+						YieldedException = HttpException;
 					}
 					catch (IOException)
 					{
@@ -131,11 +137,21 @@ namespace NodeNetAsync.Net.Http
 
 					if (YieldedException != null)
 					{
-						if (Debugger.IsAttached)
-						{
-							Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+						if (YieldedException is HttpException) {
+							var HttpException = YieldedException as HttpException;
+							if ((int)HttpException.HttpCode >= 400)
+							{
+								await Response.WriteAsync("<h1>" + HttpException.HttpCode + "</h1>");
+							}
 						}
-						await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
+						else
+						{
+							if (Debugger.IsAttached)
+							{
+								Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+							}
+							await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
+						}
 						YieldedException = null;
 					}
 
@@ -166,6 +182,8 @@ namespace NodeNetAsync.Net.Http
 
 		async public virtual Task ListenAsync(ushort Port = 80, string Host = "0.0.0.0")
 		{
+			this.Port = Port;
+			this.Host = Host;
 			this.TcpServer = new TcpServer(Port, Host);
 			this.TcpServer.HandleClient += TcpServer_HandleClient;
 			await TcpServer.ListenAsync();

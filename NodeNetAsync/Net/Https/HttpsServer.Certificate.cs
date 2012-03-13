@@ -37,24 +37,28 @@ namespace NodeNetAsync.Net.Https
 		/// <returns></returns>
 		private static byte[] GetBytesFromPEM(string PemString, PemStringType Type)
 		{
-			string header; string footer;
+			string Header, Footer;
 
 			switch (Type)
 			{
 				case PemStringType.Certificate:
-					header = "-----BEGIN CERTIFICATE-----";
-					footer = "-----END CERTIFICATE-----";
+					Header = "-----BEGIN CERTIFICATE-----";
+					Footer = "-----END CERTIFICATE-----";
 					break;
 				case PemStringType.RsaPrivateKey:
-					header = "-----BEGIN RSA PRIVATE KEY-----";
-					footer = "-----END RSA PRIVATE KEY-----";
+					Header = "-----BEGIN RSA PRIVATE KEY-----";
+					Footer = "-----END RSA PRIVATE KEY-----";
 					break;
 				default:
 					return null;
 			}
 
-			int Start = PemString.IndexOf(header) + header.Length;
-			int End = PemString.IndexOf(footer, Start) - Start;
+			int Start = PemString.IndexOf(Header) + Header.Length;
+			int End = PemString.IndexOf(Footer, Start) - Start;
+
+			if (Start < 0) throw(new Exception("Can't find '" + Header + "'"));
+			if (End < 0) throw (new Exception("Can't find '" + Footer + "'"));
+
 			return Convert.FromBase64String(PemString.Substring(Start, End));
 		}
 

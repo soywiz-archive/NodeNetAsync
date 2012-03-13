@@ -26,12 +26,28 @@ namespace NodeNetAsync.Net.Http
 		/// <summary>
 		/// 
 		/// </summary>
-		public string HttpVersion;
+		public string HttpVersion = "1.0";
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public bool Ssl;
+		public ushort Port;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool Ssl
+		{
+			get
+			{
+				return Schema == "https";
+			}
+		}
+
+		/// <summary>
+		/// http or https
+		/// </summary>
+		public string Schema = "http";
 
 		/// <summary>
 		/// 

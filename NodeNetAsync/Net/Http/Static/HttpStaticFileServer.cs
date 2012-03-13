@@ -29,9 +29,11 @@ namespace NodeNetAsync.Net.Http.Static
 			this.Cache.Enabled = Cache;
 		}
 
-		async Task IHttpFilter.Filter(HttpRequest Request, HttpResponse Response)
+		async Task IHttpFilter.FilterAsync(HttpRequest Request, HttpResponse Response)
 		{
-			var FilePath = Url.GetInnerFileRelativeToPath(this.Path, Request.Url);
+			var Uri = Request.Url;
+			Uri = Uri.Split(new[] { '?' }, 2)[0];
+			var FilePath = Url.GetInnerFileRelativeToPath(this.Path, Uri);
 
 			var CachedResult = await Cache.GetAsync(FilePath, async () =>
 			{
@@ -46,15 +48,22 @@ namespace NodeNetAsync.Net.Http.Static
 				}
 
 				var FileInfo = await FileSystem.GetFileInfoAsync(FilePath);
-				var Size = FileInfo.Length;
-
-				return new ResultStruct()
+				if (FileInfo.Exists)
 				{
-					RealFilePath = FilePath,
-					ContentType = MimeType.GetFromPath(FilePath),
-					Size = Size,
-					Data = (Size <= CacheSizeThresold) ? (await FileSystem.ReadAllBytesAsync(FilePath)) : null,
-				};
+					var Size = FileInfo.Length;
+
+					return new ResultStruct()
+					{
+						RealFilePath = FilePath,
+						ContentType = MimeType.GetFromPath(FilePath),
+						Size = Size,
+						Data = (Size <= CacheSizeThresold) ? (await FileSystem.ReadAllBytesAsync(FilePath)) : null,
+					};
+				}
+				else
+				{
+					throw(new HttpException(HttpCode.NOT_FOUND_404));
+				}
 			});
 
 			Response.Buffering = true;

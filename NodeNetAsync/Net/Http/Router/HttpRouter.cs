@@ -19,12 +19,12 @@ namespace NodeNetAsync.Net.Http.Router
 
 		public void SetDefaultRoute(IHttpFilter Route)
 		{
-			this.DefaultRoute = Route.Filter;
+			this.DefaultRoute = Route.FilterAsync;
 		}
 
 		public void AddRoute(string Path, IHttpFilter Route)
 		{
-			AddRoute(Path, Route.Filter);
+			AddRoute(Path, Route.FilterAsync);
 		}
 
 		public void AddRoute(string Path, Func<HttpRequest, HttpResponse, Task> Route)
@@ -32,7 +32,7 @@ namespace NodeNetAsync.Net.Http.Router
 			Routes.Add(new Regex("^" + Path + "$", RegexOptions.Compiled), Route);
 		}
 
-		async public Task Route(HttpRequest Request, HttpResponse Response)
+		async public Task RouteAsync(HttpRequest Request, HttpResponse Response)
 		{
 			foreach (var Route in Routes)
 			{
@@ -54,9 +54,9 @@ namespace NodeNetAsync.Net.Http.Router
 			}
 		}
 
-		async public Task Filter(HttpRequest Request, HttpResponse Response)
+		async public Task FilterAsync(HttpRequest Request, HttpResponse Response)
 		{
-			await Route(Request, Response);
+			await RouteAsync(Request, Response);
 		}
 	}
 }

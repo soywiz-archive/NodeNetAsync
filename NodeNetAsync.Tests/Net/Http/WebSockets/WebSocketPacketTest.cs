@@ -15,6 +15,20 @@ namespace NodeNetAsync.Tests.Net.Http.WebSockets
 	[TestClass]
 	public class WebSocketPacketTest
 	{
+		[TestMethod]
+		async public Task TestOldProtocolPacket()
+		{
+			var Stream = GenerateBufferedStreamFromBytes(
+				new byte[] { 0x00, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0xff } // Contains "Hello"
+				.Concat(new byte[] { 0x00, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0xff }) // Contains "Hello"
+				.ToArray()
+			);
+			var Packet1 = await WebSocketPacket.ReadPacketFromStreamAsync(Version: 0, Stream: Stream);
+			var Packet2 = await WebSocketPacket.ReadPacketFromStreamAsync(Version: 0, Stream: Stream);
+			Assert.AreEqual("WebSocketPacket('TextFrame', 'Hello')", Packet1.ToString());
+			Assert.AreEqual("WebSocketPacket('TextFrame', 'World')", Packet2.ToString());
+		}
+
 		static private NodeBufferedStream GenerateBufferedStreamFromBytes(byte[] Bytes)
 		{
 			var Data = new MemoryStream();

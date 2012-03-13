@@ -79,70 +79,81 @@ namespace NodeNetAsync.Net.Http.WebSockets
 
 		static async public Task<WebSocketPacket> ReadPacketFromStreamAsync(int Version, NodeBufferedStream Stream)
 		{
-			var Header = new byte[2];
-			var Size = new byte[8];
-			var SizeSize = 0;
-			var Mask = new byte[4];
-			var Data = new MemoryStream();
-			var Temp = new byte[128];
-			WebSocketPacket.OpcodeEnum Opcode;
-			bool IsFinal;
-			bool IsMasked;
-			int PayloadLength;
 			var Packet = default(WebSocketPacket);
 
-			do
+			if (Version <= 0)
 			{
-				await Stream.ReadAsync(Header, 0, 2);
-				IsFinal = (((Header[0] >> 7) & 0x1) != 0);
-				Opcode = (WebSocketPacket.OpcodeEnum)((Header[0] >> 0) & 0x7);
-				PayloadLength = (Header[1] >> 0) & 0x7F;
-				IsMasked = ((Header[1] >> 7) & 0x1) != 0;
+				var PayloadBegin = await Stream.ReadBytesAsync(1);
+				if (PayloadBegin[0] != 0x00) throw(new Exception("Invalid Packet"));
+				Packet.Opcode = OpcodeEnum.TextFrame;
+				Packet.Payload = await Stream.ReadBytesUntilByteAsync(0xFF);
+			}
+			else
+			{
+				var Header = new byte[2];
+				var Size = new byte[8];
+				var SizeSize = 0;
+				var Mask = new byte[4];
+				var Data = new MemoryStream();
+				var Temp = new byte[128];
+				WebSocketPacket.OpcodeEnum Opcode;
+				bool IsFinal;
+				bool IsMasked;
+				int PayloadLength;
 
-				if (Opcode != OpcodeEnum.ContinuationFrame)
+				do
 				{
-					Packet.Opcode = Opcode;
-				}
+					await Stream.ReadAsync(Header, 0, 2);
+					IsFinal = (((Header[0] >> 7) & 0x1) != 0);
+					Opcode = (WebSocketPacket.OpcodeEnum)((Header[0] >> 0) & 0x7);
+					PayloadLength = (Header[1] >> 0) & 0x7F;
+					IsMasked = ((Header[1] >> 7) & 0x1) != 0;
 
-				// EXTENDED PayloadLength
-				if (PayloadLength >= 0x7E)
-				{
-					if (PayloadLength == 0x7E)
+					if (Opcode != OpcodeEnum.ContinuationFrame)
 					{
-						SizeSize = 2;
+						Packet.Opcode = Opcode;
 					}
-					else if (PayloadLength == 0x7F)
+
+					// EXTENDED PayloadLength
+					if (PayloadLength >= 0x7E)
 					{
-						SizeSize = 8;
+						if (PayloadLength == 0x7E)
+						{
+							SizeSize = 2;
+						}
+						else if (PayloadLength == 0x7F)
+						{
+							SizeSize = 8;
+						}
+						await Stream.ReadAsync(Size, 0, SizeSize);
+						PayloadLength = 0;
+						for (int n = 0; n < SizeSize; n++)
+						{
+							PayloadLength <<= 8;
+							PayloadLength |= Size[n];
+						}
 					}
-					await Stream.ReadAsync(Size, 0, SizeSize);
-					PayloadLength = 0;
-					for (int n = 0; n < SizeSize; n++)
+
+					// MASK
+					if (IsMasked)
 					{
-						PayloadLength <<= 8;
-						PayloadLength |= Size[n];
+						await Stream.ReadAsync(Mask, 0, 4);
 					}
-				}
 
-				// MASK
-				if (IsMasked)
-				{
-					await Stream.ReadAsync(Mask, 0, 4);
-				}
+					// Read Payload
+					await Stream.ReadAsync(Temp, 0, PayloadLength);
 
-				// Read Payload
-				await Stream.ReadAsync(Temp, 0, PayloadLength);
+					// Perform unmasking
+					if (IsMasked)
+					{
+						for (int n = 0; n < PayloadLength; n++) Temp[n] ^= Mask[n % 4];
+					}
 
-				// Perform unmasking
-				if (IsMasked)
-				{
-					for (int n = 0; n < PayloadLength; n++) Temp[n] ^= Mask[n % 4];
-				}
+					Data.Write(Temp, 0, PayloadLength);
+				} while (!IsFinal);
 
-				Data.Write(Temp, 0, PayloadLength);
-			} while (!IsFinal);
-
-			Packet.Payload = Data.GetContentBytes();
+				Packet.Payload = Data.GetContentBytes();
+			}
 
 			return Packet;
 		}

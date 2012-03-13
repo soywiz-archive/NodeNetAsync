@@ -24,6 +24,7 @@ namespace NodeNetAsync.Utils
 				case "ico": return "image/png";
 				case "png": return "image/png";
 				case "jpeg": case "jpg": return "image/jpeg";
+				case "xap": return "application/x-silverlight-app";
 				default: return "octet/stream";
 			}
 		}

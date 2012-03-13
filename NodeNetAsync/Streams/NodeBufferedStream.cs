@@ -103,6 +103,97 @@ namespace NodeNetAsync.Streams
 			return Return;
 		}
 
+		async public Task<byte[]> ReadBytesUntilByteAsync(byte EndByte)
+		{
+			var Return = new MemoryStream();
+			bool Found = false;
+
+			while (!Found)
+			{
+				await FillBuffer(1);
+				int Readed = RingBuffer.Peek(TempBuffer, 0, Math.Min(TempBuffer.Length, RingBuffer.AvailableForRead));
+
+				for (int n = 0; n < Readed; n++)
+				{
+					if (TempBuffer[n] == EndByte)
+					{
+						Readed = n;
+						Found = true;
+						break;
+					}
+				}
+
+				if (Readed > 0)
+				{
+					Return.Write(TempBuffer, 0, Readed);
+					RingBuffer.Skip(Readed);
+				}
+			}
+
+			RingBuffer.Skip(1);
+			return Return.ToArray();
+		}
+
+#if false
+		async public Task<byte[]> ReadBytesUntilSequenceAsync(byte[] Sequence)
+		{
+			var Return = new MemoryStream();
+			bool Found = false;
+			while (true)
+			{
+				int MatchingSequencePosition = 0;
+				await FillBuffer(1);
+				int Readed = RingBuffer.Peek(TempBuffer, 0, Math.Min(TempBuffer.Length, RingBuffer.AvailableForRead));
+
+				for (int n = 0; n < Readed; n++)
+				{
+					int StartMatchingSequencePosition = MatchingSequencePosition;
+					for (; MatchingSequencePosition < Sequence.Length; MatchingSequencePosition++)
+					{
+						if (n + MatchingSequencePosition >= Readed) break;
+
+						if (TempBuffer[n + MatchingSequencePosition] == Sequence[MatchingSequencePosition])
+						{
+							// Completely found
+							if (MatchingSequencePosition == Sequence.Length - 1)
+							{
+								Readed = n - StartMatchingSequencePosition;
+								goto Found;
+							}
+						}
+						else
+						{
+							MatchingSequencePosition = 0;
+							break;
+						}
+					}
+				}
+
+			Found:;
+
+				if (Readed > 0)
+				{
+					Return.Write(TempBuffer, 0, Readed);
+					RingBuffer.Skip(Readed);
+				}
+			}
+
+			await FillBuffer(1);
+			if (RingBuffer.Peek(TempBuffer, 0, 2) >= 2)
+			{
+				if (TempBuffer[0] == '\r' && TempBuffer[1] == '\n')
+				{
+					//Return.Write(TempBuffer, 0, 2);
+					RingBuffer.Skip(2);
+					return Return;
+				}
+			}
+			//Return.Write(TempBuffer, 0, 1);
+			RingBuffer.Skip(1);
+			return Return.ToArray();
+		}
+#endif
+
 		async public Task<MemoryStream> ReadLineAsMemoryStreamAsync()
 		{
 			var Return = new MemoryStream();

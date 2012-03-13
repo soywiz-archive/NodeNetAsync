@@ -8,6 +8,6 @@ namespace NodeNetAsync.Net.Http
 {
 	public interface IHttpFilter
 	{
-		Task Filter(HttpRequest Request, HttpResponse Response);
+		Task FilterAsync(HttpRequest Request, HttpResponse Response);
 	}
 }

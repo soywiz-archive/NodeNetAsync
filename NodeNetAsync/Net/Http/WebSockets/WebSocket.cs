@@ -12,8 +12,8 @@ namespace NodeNetAsync.Net.Http.WebSockets
 	{
 		static internal int LastUniqueId = 0;
 		public int UniqueId;
-		public HttpRequest HttpRequest;
-		public HttpResponse HttpResponse;
+		public HttpRequest Request;
+		public HttpResponse Response;
 		public TcpSocket Socket;
 		public Encoding DefaultEncoding = Encoding.UTF8;
 		public TType Tag;
@@ -22,14 +22,14 @@ namespace NodeNetAsync.Net.Http.WebSockets
 		{
 			get
 			{
-				return this.HttpResponse.WebSocketVersion;
+				return this.Response.WebSocketVersion;
 			}
 		}
 
 		internal WebSocket(HttpRequest Request, HttpResponse Response)
 		{
-			this.HttpRequest = Request;
-			this.HttpResponse = Response;
+			this.Request = Request;
+			this.Response = Response;
 			this.Socket = Response.Socket;
 			this.UniqueId = LastUniqueId++;
 		}
@@ -53,24 +53,36 @@ namespace NodeNetAsync.Net.Http.WebSockets
 		async public Task WritePacketAsync(byte[] Data, int Offset = 0, int Count = -1)
 		{
 			if (Count == -1) Count = Data.Length;
+
 			var MemoryStream = new MemoryStream();
 
-			do
+			if (Version <= 0)
 			{
-				// @TODO: Implement longer packets
-				int ChunkSize = Math.Min(Count, 0x7D); // 0x7E and 0x7F are reserved for length extension
-				bool IsFinal = (ChunkSize == Count);
-				bool IsMasked = false;
+				MemoryStream.WriteByte(0x00);
+				MemoryStream.Write(Data, Offset, Count);
+				MemoryStream.WriteByte(0xFF);
 
-				MemoryStream.WriteByte((byte)((byte)(WebSocketPacket.OpcodeEnum.TextFrame) | (IsFinal ? 0x80 : 0x00)));
-				MemoryStream.WriteByte((byte)(ChunkSize | (IsMasked ? 0x80 : 0x00)));
-				MemoryStream.Write(Data, Offset, ChunkSize);
+				await Socket.WriteAsync(MemoryStream.GetBuffer(), 0, (int)MemoryStream.Length);
+			}
+			else
+			{
+				do
+				{
+					// @TODO: Implement longer packets
+					int ChunkSize = Math.Min(Count, 0x7D); // 0x7E and 0x7F are reserved for length extension
+					bool IsFinal = (ChunkSize == Count);
+					bool IsMasked = false;
 
-				Offset += ChunkSize;
-				Count -= ChunkSize;
-			} while (Count > 0);
+					MemoryStream.WriteByte((byte)((byte)(WebSocketPacket.OpcodeEnum.TextFrame) | (IsFinal ? 0x80 : 0x00)));
+					MemoryStream.WriteByte((byte)(ChunkSize | (IsMasked ? 0x80 : 0x00)));
+					MemoryStream.Write(Data, Offset, ChunkSize);
 
-			await Socket.WriteAsync(MemoryStream.GetBuffer(), 0, (int)MemoryStream.Length);
+					Offset += ChunkSize;
+					Count -= ChunkSize;
+				} while (Count > 0);
+
+				await Socket.WriteAsync(MemoryStream.GetBuffer(), 0, (int)MemoryStream.Length);
+			}
 		}
 	}
 }

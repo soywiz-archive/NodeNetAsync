@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Utils
 {
-	public class RingBuffer<TType>
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <typeparam name="TType"></typeparam>
+	/// <seealso cref="http://msdn.microsoft.com/en-us/library/hh160414(v=vs.110).aspx"/>
+	public class RingBuffer<TType> : IProducerConsumer<TType>
 	{
 		private int PositionWrite;
 		private int PositionRead;
@@ -21,15 +26,6 @@ namespace NodeNetAsync.Utils
 			this.Data = new TType[Size];
 			this.AvailableForWrite = Size;
 			this.AvailableForRead = 0;
-		}
-
-		public TType[] PeekGet(int Count)
-		{
-			var Temp = new TType[Count];
-			int Readed = Peek(Temp, 0, Count);
-			var Return = new TType[Readed];
-			Array.Copy(Temp, 0, Return, 0, Readed);
-			return Return;
 		}
 
 		public int Peek(TType[] Buffer, int Offset = 0, int Count = -1)
@@ -55,11 +51,6 @@ namespace NodeNetAsync.Utils
 			AvailableForRead -= Count;
 			AvailableForWrite += Count;
 			return Count;
-		}
-
-		public int Read(TType[] Buffer, int Offset = 0, int Count = -1)
-		{
-			return Skip(Peek(Buffer, Offset, Count));
 		}
 
 		public void Write(TType[] Buffer, int Offset = 0, int Count = -1)

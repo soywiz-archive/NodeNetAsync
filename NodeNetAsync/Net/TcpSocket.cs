@@ -24,20 +24,21 @@ namespace NodeNetAsync.Net
 		public event Action Disconnected;
 		*/
 
-		async static public Task<TcpSocket> CreateAndConnectAsync(string Host, int Port)
+		async static public Task<TcpSocket> CreateAndConnectAsync(string Host, int Port, int BufferSize = NodeBufferedStream.DefaultBufferSize)
 		{
-			var TcpSocket = new TcpSocket(new SystemTcpClient());
+			var TcpSocket = new TcpSocket(new SystemTcpClient(), BufferSize);
 			await TcpSocket.ConnectAsync(Host, Port);
 			return TcpSocket;
 		}
 
-		public TcpSocket()
+		public TcpSocket(int BufferSize = NodeBufferedStream.DefaultBufferSize) : base(BufferSize)
 		{
 			this.TcpClient = new TcpClient();
 			_Init();
 		}
 
-		internal TcpSocket(SystemTcpClient TcpClient)
+		internal TcpSocket(SystemTcpClient TcpClient, int BufferSize = NodeBufferedStream.DefaultBufferSize)
+			: base(BufferSize)
 		{
 			this.TcpClient = TcpClient;
 			_Init();
@@ -63,8 +64,8 @@ namespace NodeNetAsync.Net
 
 		private void _Init()
 		{
-			this.TcpClient.ReceiveBufferSize = DefaultBufferSize;
-			this.TcpClient.SendBufferSize = DefaultBufferSize;
+			this.TcpClient.ReceiveBufferSize = BufferSize;
+			this.TcpClient.SendBufferSize = BufferSize;
 			this.TcpClient.NoDelay = true;
 		}
 	}

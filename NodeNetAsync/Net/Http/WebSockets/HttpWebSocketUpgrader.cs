@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -74,7 +75,10 @@ namespace NodeNetAsync.Net.Http.WebSockets
 						catch (Exception Exception)
 						{
 							YieldedException = Exception;
-							//Console.Error.WriteLine(Exception);
+							if (Debugger.IsAttached)
+							{
+								Console.Error.WriteLine(Exception);
+							}
 						}
 
 						await this.DisconnectHandler(WebSocket);

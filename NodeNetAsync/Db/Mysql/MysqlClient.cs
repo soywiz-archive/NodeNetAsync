@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
+using NodeNetAsync.Utils;
 
 namespace NodeNetAsync.Db.Mysql
 {
-	public class MysqlClient : IDisposable
+	public partial class MysqlClient : IDisposable
 	{
 		private string Host;
 		private int Port;
@@ -23,8 +24,9 @@ namespace NodeNetAsync.Db.Mysql
 		private Encoding ConnectionEncoding = new UTF8Encoding(false);
 		private MysqlLanguageEnum ConnectionEncodingInternal = MysqlLanguageEnum.UTF8_UNICODE_CI;
 		public byte LastPackedId;
+		private bool KeepAlive = false;
 
-		public MysqlClient(string Host = "localhost", int Port = 3306, string User = null, string Password = null, string Database = null, bool Debug = false, int MaxPacketSize = 0x01000000)
+		public MysqlClient(string Host = "localhost", int Port = 3306, string User = null, string Password = null, string Database = null, bool Debug = false, int MaxPacketSize = 0x01000000, bool KeepAlive = false)
 		{
 			this.Host = Host;
 			this.Port = Port;
@@ -33,6 +35,7 @@ namespace NodeNetAsync.Db.Mysql
 			this.Database = Database;
 			this.Debug = Debug;
 			this.MaxPacketSize = MaxPacketSize;
+			this.KeepAlive = KeepAlive;
 		}
 
 		public bool IsConnected
@@ -44,12 +47,27 @@ namespace NodeNetAsync.Db.Mysql
 			}
 		}
 
+		async private Task CheckConnectedAsync()
+		{
+			if (!IsConnected)
+			{
+				await ConnectAsync();
+			}
+		}
+
 		async public Task ConnectAsync()
 		{
-			this.TcpSocket = await TcpSocket.CreateAndConnectAsync(Host, Port);
+			this.TcpSocket = await TcpSocket.CreateAndConnectAsync(Host: Host, Port: Port, BufferSize: 1024);
 			HandleHandshakePacket(await ReadPacketAsync());
-			await SendPacket(CreateNewAuthPacket());
+			await SendPacketAsync(CreateNewAuthPacket());
 			HandleResultPacket(await ReadPacketAsync());
+			if (KeepAlive)
+			{
+				Core.SetInterval(async () =>
+				{
+					await PingAsync();
+				}, TimeSpan.FromSeconds(5));
+			}
 		}
 
 		private void HandleResultPacket(MysqlPacket Packet)
@@ -124,8 +142,9 @@ namespace NodeNetAsync.Db.Mysql
 			return Packet;
 		}
 
-		async private Task SendPacket(MysqlPacket Packet)
+		async private Task SendPacketAsync(MysqlPacket Packet)
 		{
+			await CheckConnectedAsync();
 			await Packet.SendToAsync(this.TcpSocket);
 		}
 
@@ -154,39 +173,16 @@ namespace NodeNetAsync.Db.Mysql
 			return new MysqlPacket(ConnectionEncoding, PacketNumber, Data);
 		}
 
-		async public Task<MysqlQueryResult> QueryAsync(string Query)
+		async public Task<IEnumerable<TType>> QueryAsyncAs<TType>(string Query, params object[] Params)
 		{
-			if (!IsConnected)
-			{
-				await ConnectAsync();
-			}
-			var MysqlQueryResult = new MysqlQueryResult();
+			var List = new List<TType>();
 
-			var OutPacket = new MysqlPacket(ConnectionEncoding, 0);
-			OutPacket.WriteNumber(1, (uint)MysqlCommandEnum.COM_QUERY);
-			OutPacket.WryteBytes(ConnectionEncoding.GetBytes(Query));
-			await SendPacket(OutPacket);
-
-			int NumberOfFields = HandleResultSetHeaderPacket(await ReadPacketAsync());
-			//Console.WriteLine("Number of fields: {0}", NumberOfFields);
-	
-			// Read fields
-			while (true)
+			foreach (var Row in await QueryAsync(Query, Params))
 			{
-				var InPacket = await ReadPacketAsync();
-				if (CheckEofPacket(InPacket)) break;
-				MysqlQueryResult.Columns.Add(HandleFieldPacket(InPacket));
+				List.Add(Row.CastTo<TType>());
 			}
 
-			// Read words
-			while (true)
-			{
-				var InPacket = await ReadPacketAsync();
-				if (CheckEofPacket(InPacket)) break;
-				MysqlQueryResult.Rows.Add(HandleRowDataPacket(InPacket, MysqlQueryResult.Columns));
-			}
-
-			return MysqlQueryResult;
+			return List;
 		}
 
 		private bool CheckEofPacket(MysqlPacket Packet)

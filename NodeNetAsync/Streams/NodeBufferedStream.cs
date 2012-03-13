@@ -17,9 +17,11 @@ namespace NodeNetAsync.Streams
 		//protected const int DefaultBufferSize = 256;
 		//protected const int DefaultBufferSize = 1024;
 
+		protected int BufferSize = 128;
+
 		public Stream Stream { get; protected set; }
-		protected byte[] TempBuffer = new byte[DefaultBufferSize];
-		protected ByteRingBuffer RingBuffer = new ByteRingBuffer(DefaultBufferSize);
+		protected byte[] TempBuffer;
+		protected IProducerConsumer<byte> RingBuffer;
 		public Encoding DefaultEncoding = Encoding.UTF8;
 
 		public void UnsafeSetStream(Stream Stream)
@@ -27,13 +29,27 @@ namespace NodeNetAsync.Streams
 			this.Stream = Stream;
 		}
 
-		protected NodeBufferedStream()
+		protected NodeBufferedStream(int BufferSize = DefaultBufferSize)
 		{
+			this.BufferSize = BufferSize;
+			Init();
 		}
 
-		public NodeBufferedStream(Stream Stream)
+		public NodeBufferedStream(Stream Stream, int BufferSize = DefaultBufferSize)
 		{
 			this.Stream = Stream;
+			this.BufferSize = BufferSize;
+			Init();
+		}
+
+		private void Init()
+		{
+			TempBuffer = new byte[BufferSize];
+#if true
+			RingBuffer = new ProducerConsumer<byte>();
+#else
+			RingBuffer = new RingBuffer<byte>(BufferSize);
+#endif
 		}
 
 		private bool IsForSureDataAvailable
@@ -47,7 +63,8 @@ namespace NodeNetAsync.Streams
 
 		async private Task FillBuffer(int MinimumSize)
 		{
-			MinimumSize = Math.Min(MinimumSize, RingBuffer.Size);
+			MinimumSize = Math.Min(MinimumSize, RingBuffer.AvailableForWrite);
+			//MinimumSize = Math.Min(MinimumSize, BufferSize);
 
 			while (
 				(
@@ -57,7 +74,7 @@ namespace NodeNetAsync.Streams
 				&& (RingBuffer.AvailableForWrite > 0)
 			)
 			{
-				int ToRead = RingBuffer.AvailableForWrite;
+				int ToRead = Math.Min(BufferSize, RingBuffer.AvailableForWrite);
 
 				int Readed = await Stream.ReadAsync(TempBuffer, 0, ToRead);
 				if (Readed <= 0) throw (new IOException());
@@ -93,7 +110,7 @@ namespace NodeNetAsync.Streams
 			do
 			{
 				await FillBuffer(1);
-				int Readed = RingBuffer.Peek(TempBuffer, 0, RingBuffer.AvailableForRead);
+				int Readed = RingBuffer.Peek(TempBuffer, 0, Math.Min(TempBuffer.Length, RingBuffer.AvailableForRead));
 				//Console.WriteLine(Readed);
 				for (int n = 0; n < Readed; n++)
 				{
@@ -134,7 +151,8 @@ namespace NodeNetAsync.Streams
 			int Readed = 0;
 			while (Count > 0)
 			{
-				await FillBuffer(1);
+				//await FillBuffer(1);
+				await FillBuffer(Count);
 				int ToReadStep = Math.Min(Count, RingBuffer.AvailableForRead);
 				int ReadedStep = RingBuffer.Read(Buffer, Offset, ToReadStep);
 				Offset += ReadedStep;

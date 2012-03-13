@@ -39,7 +39,7 @@ namespace NodeNetAsync.Db.Mysql
 
 		public TType CastTo<TType>()
 		{
-			var ItemValue = default(TType);
+			var ItemValue = (TType)Activator.CreateInstance(typeof(TType));
 			var ItemType = typeof(TType);
 
 			for (int n = 0; n < Columns.Length; n++)
@@ -50,14 +50,24 @@ namespace NodeNetAsync.Db.Mysql
 				if (Field != null)
 				{
 					object ValueObject = null;
+
 					if (Field.FieldType == typeof(bool))
 					{
 						ValueObject = (int.Parse(Value) != 0);
+					}
+					else if (Field.FieldType == typeof(int))
+					{
+						ValueObject = int.Parse(Value);
+					}
+					else if (Field.FieldType == typeof(string))
+					{
+						ValueObject = Value;
 					}
 					else
 					{
 						throw(new NotImplementedException("Can't handle type '" + Field.FieldType + "'"));
 					}
+
 					Field.SetValueDirect(__makeref(ItemValue), ValueObject);
 				}
 			}

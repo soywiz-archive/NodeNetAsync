@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
+    <Compile Include="Db\Mysql\MysqlClient.Commands.cs" />
+    <Compile Include="Db\Mysql\MysqlClient.Utils.cs" />
     <Compile Include="Db\Redis\RedisClient.cs" />
     <Compile Include="Db\Redis\RedisResponseException.cs" />
     <Compile Include="Json\JsonExtensions.cs" />
@@ -85,11 +87,13 @@
     <Compile Include="OS\Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ArrayUtils.cs" />
-    <Compile Include="Utils\ByteRingBuffer.cs" />
+    <Compile Include="Utils\AsyncTaskQueue.cs" />
     <Compile Include="Utils\AsyncCache.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Html.cs" />
+    <Compile Include="Utils\IProducerConsumer.cs" />
     <Compile Include="Utils\MimeType.cs" />
+    <Compile Include="Utils\ProducerConsumer.cs" />
     <Compile Include="Utils\RingBuffer.cs" />
     <Compile Include="Utils\Url.cs" />
     <Compile Include="Views\TemplateRenderer.cs" />

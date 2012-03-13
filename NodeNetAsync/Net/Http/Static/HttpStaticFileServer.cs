@@ -35,7 +35,10 @@ namespace NodeNetAsync.Net.Http.Static
 
 			var CachedResult = await Cache.GetAsync(FilePath, async () =>
 			{
-				await Console.Out.WriteLineAsync(String.Format("Caching '{0}'", FilePath));
+				if (Cache.Enabled)
+				{
+					await Console.Out.WriteLineAsync(String.Format("Caching '{0}'", FilePath));
+				}
 
 				if (Directory.Exists(FilePath))
 				{

@@ -13,7 +13,7 @@ namespace NodeNetAsync.Tests.Utils
 		{
 			var CurrentEncoding = Encoding.UTF8;
 			int BufferSize = 1024;
-			var Buffer = new ByteRingBuffer(BufferSize);
+			var Buffer = new RingBuffer<byte>(BufferSize);
 			
 			// Initial check
 			Assert.AreEqual(BufferSize, Buffer.AvailableForWrite);

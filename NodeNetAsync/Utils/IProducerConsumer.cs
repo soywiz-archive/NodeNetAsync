@@ -11,6 +11,8 @@ namespace NodeNetAsync.Utils
 		int AvailableForRead { get; }
 		int AvailableForWrite { get; }
 
+		AsyncTaskEventWaiter OnData { get; }
+
 		int Skip(int Count);
 		int Peek(TType[] Buffer, int Offset = 0, int Count = -1);
 		void Write(TType[] Buffer, int Offset = 0, int Count = -1);

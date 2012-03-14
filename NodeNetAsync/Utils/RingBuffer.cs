@@ -26,6 +26,7 @@ namespace NodeNetAsync.Utils
 			this.Data = new TType[Size];
 			this.AvailableForWrite = Size;
 			this.AvailableForRead = 0;
+			this.OnData = new AsyncTaskEventWaiter();
 		}
 
 		public int Peek(TType[] Buffer, int Offset = 0, int Count = -1)
@@ -66,6 +67,18 @@ namespace NodeNetAsync.Utils
 
 			AvailableForWrite -= Count;
 			AvailableForRead += Count;
+
+			if (Count > 0)
+			{
+				this.OnData.Signal();
+			}
+		}
+
+
+		public AsyncTaskEventWaiter OnData
+		{
+			get;
+			protected set;
 		}
 	}
 }

@@ -8,6 +8,13 @@ namespace NodeNetAsync.Net.Http
 {
 	public class HttpRequest
 	{
+		public HttpRequest(ushort Port, int ConnectionId, int KeepAliveCount)
+		{
+			this.Port = Port;
+			this.ConnectionId = ConnectionId;
+			this.KeepAliveCount = KeepAliveCount;
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -53,5 +60,10 @@ namespace NodeNetAsync.Net.Http
 		/// 
 		/// </summary>
 		public int ConnectionId;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public int KeepAliveCount;
 	}
 }

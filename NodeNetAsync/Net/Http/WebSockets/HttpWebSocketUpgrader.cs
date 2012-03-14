@@ -143,7 +143,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 					}
 					else
 					{
-						throw(new HttpException(HttpCode.BAD_REQUEST_400));
+						throw(new HttpException(HttpCode.UPGRADE_REQUIRED_426));
 					}
 					break;
 				default:

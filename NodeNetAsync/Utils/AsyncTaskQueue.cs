@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Utils
 {
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <see cref="http://msdn.microsoft.com/en-us/library/system.threading.tasks.taskscheduler(v=vs.110).aspx"/>
 	public class AsyncTaskQueue
 	{
 		protected Task LastEnqueuedTask;

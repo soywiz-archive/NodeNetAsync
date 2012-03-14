@@ -54,6 +54,7 @@
     <Compile Include="Net\Http\HttpHeadersTest.cs" />
     <Compile Include="Net\Http\WebSockets\HttpWebSocketUpgraderTest.cs" />
     <Compile Include="Net\Http\WebSockets\WebSocketPacketTest.cs" />
+    <Compile Include="Streams\NodeBufferedStreamTest.cs" />
     <Compile Include="Utils\AsyncCacheTest.cs" />
     <Compile Include="Utils\AsyncTaskQueueTest.cs" />
     <Compile Include="Utils\HtmlTest.cs" />

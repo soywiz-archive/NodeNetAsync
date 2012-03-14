@@ -198,6 +198,47 @@ namespace NodeNetAsync.Streams
 		}
 #endif
 
+#if true
+		async public Task<MemoryStream> ReadLineAsMemoryStreamAsync(int MaxBytesToRead = DefaultMaxBytesToRead)
+		{
+			var Return = new MemoryStream();
+		Retry: ;
+			bool Found = false;
+			do
+			{
+				await FillBuffer(1);
+				int Readed = RingBuffer.Peek(TempBuffer, 0, Math.Min(TempBuffer.Length, RingBuffer.AvailableForRead));
+				//Console.WriteLine(Readed);
+				for (int n = 0; n < Readed; n++)
+				{
+					byte c = TempBuffer[n];
+					if (c == '\r')
+					{
+						Readed = n;
+						Found = true;
+						break;
+					}
+				}
+				//Console.WriteLine(Readed);
+				if (Readed > 0)
+				{
+					Return.Write(TempBuffer, 0, Readed);
+					RingBuffer.Skip(Readed);
+				}
+
+				if (Return.Length > MaxBytesToRead) throw (new SequenceTooLongException());
+			} while (!Found);
+
+			await FillBuffer(2);
+			if (TempBuffer[0] == '\r' && TempBuffer[1] == '\n')
+			{
+				//Return.Write(TempBuffer, 0, 2);
+				RingBuffer.Skip(2);
+				return Return;
+			}
+			goto Retry;
+		}
+#else
 		async public Task<MemoryStream> ReadLineAsMemoryStreamAsync(int MaxBytesToRead = DefaultMaxBytesToRead)
 		{
 			var Return = new MemoryStream();
@@ -211,6 +252,7 @@ namespace NodeNetAsync.Streams
 				{
 					byte c = TempBuffer[n];
 					if (c == '\r' || c == '\n')
+					//if (c == '\r')
 					{
 						Readed = n;
 						Found = true;
@@ -227,6 +269,7 @@ namespace NodeNetAsync.Streams
 				if (Return.Length > MaxBytesToRead) throw(new SequenceTooLongException());
 			} while (!Found);
 
+			// THIS COULD LEAD TO PROBLEMS! SEE: ReadLineAsyncLatencyIssuesTest
 			await FillBuffer(1);
 			if (RingBuffer.Peek(TempBuffer, 0, 2) >= 2)
 			{
@@ -241,6 +284,7 @@ namespace NodeNetAsync.Streams
 			RingBuffer.Skip(1);
 			return Return;
 		}
+#endif
 
 		async public Task<int> ReadAsync(byte[] Buffer, int Offset = 0, int Count = -1)
 		{

@@ -10,6 +10,11 @@ namespace NodeNetAsync.Utils
 	{
 		TType[] List = new TType[0];
 
+		public ProducerConsumer()
+		{
+			OnData = new AsyncTaskEventWaiter();
+		}
+
 		public int Peek(TType[] Buffer, int Offset = 0, int Count = -1)
 		{
 			if (Count < 0) Count = Buffer.Length - Offset;
@@ -46,6 +51,11 @@ namespace NodeNetAsync.Utils
 				Array.Copy(Buffer, Offset, NewList, List.Length, Count);
 			}
 			this.List = NewList;
+
+			if (Count > 0)
+			{
+				OnData.Signal();
+			}
 		}
 
 		public int AvailableForRead
@@ -56,6 +66,13 @@ namespace NodeNetAsync.Utils
 		public int AvailableForWrite
 		{
 			get { return 8 * 1024 * 1024; }
+		}
+
+
+		public AsyncTaskEventWaiter OnData
+		{
+			get;
+			protected set;
 		}
 	}
 }

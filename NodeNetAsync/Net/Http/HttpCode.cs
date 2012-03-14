@@ -51,7 +51,7 @@ namespace NodeNetAsync.Net.Http
 		/// initial request[2] and check if a 100 Continue status code is received in response before
 		/// continuing (or receive 417 Expectation Failed and not continue).[2]
 		/// </summary>
-		CONTINUE = 100,
+		CONTINUE_100 = 100,
 
 		/// <summary>
 		/// 101 Switching Protocols
@@ -235,7 +235,7 @@ namespace NodeNetAsync.Net.Http
 		/// 402 Payment Required
 		/// Reserved for future use.[2] The original intention was that this code might be used as part of some form of digital cash or micropayment scheme, but that has not happened, and this code is not usually used. As an example of its use, however, Apple's MobileMe service generates a 402 error ("httpStatusCode:402" in the Mac OS X Console log) if the MobileMe account is delinquent.[citation needed]
 		/// </summary>
-		PAYMENT_REQUIRED = 402,
+		PAYMENT_REQUIRED_402 = 402,
 		
 		/// <summary>
 		/// 403 Forbidden
@@ -307,7 +307,7 @@ namespace NodeNetAsync.Net.Http
 		/// 414 Request-URI Too Long
 		/// The URI provided was too long for the server to process.[2]
 		/// </summary>
-		REQUEST_URI_TOO_LONG_412 = 412,
+		REQUEST_URI_TOO_LONG_414 = 414,
 		
 		/// <summary>
 		/// 415 Unsupported Media Type
@@ -379,7 +379,7 @@ namespace NodeNetAsync.Net.Http
 		/// 429 Too Many Requests
 		/// The user has sent too many requests in a given amount of time. Intended for use with rate limiting schemes. Specified in an Internet-Draft which is approved for publication as RFC.[19]
 		/// </summary>
-		TOO_MANY_REQUESTS = 429,
+		TOO_MANY_REQUESTS_429 = 429,
 		
 		/// <summary>
 		/// 431 Request Header Fields Too Large
@@ -397,7 +397,7 @@ namespace NodeNetAsync.Net.Http
 		/// 449 Retry With
 		/// A Microsoft extension. The request should be retried after performing the appropriate action.[20]
 		/// </summary>
-		RETRY_WITH = 449,
+		RETRY_WITH_449 = 449,
 
 		/// <summary>
 		/// 450 Blocked by Windows Parental Controls
@@ -502,9 +502,87 @@ namespace NodeNetAsync.Net.Http
 		{
 			switch (Code)
 			{
-				case HttpCode.OK_200: return "OK";
-				case HttpCode.NOT_FOUND_404: return "Not Found";
+				// 1xx
+				case HttpCode.CONTINUE_100: return "Continue";
 				case HttpCode.SWITCHING_PROTOCOLS_101: return "Switching Protocols";
+				case HttpCode.PROCESSING_WEBDAV_102: return "Processing";
+				case HttpCode.CHECKPOINT_103: return "Checkpoint";
+				case HttpCode.REQUEST_URI_TOO_LONG_122: return "Request-URI too long";
+
+				// 2xx
+				case HttpCode.OK_200: return "OK";
+				case HttpCode.CREATED_201: return "Created";
+				case HttpCode.ACCEPTED_202: return "Accepted";
+				case HttpCode.NON_AUTHORITATIVE_INFORMATION_203: return "Non-Authoritative Information";
+				case HttpCode.NO_CONTENT_204: return "No Content";
+				case HttpCode.RESET_CONTENT_205: return "Reset Content";
+				case HttpCode.PARTIAL_CONTENT_206: return "Partial Content";
+				case HttpCode.MULTI_STATUS_WEBDAV_207: return "Multi-Status";
+				case HttpCode.ALREADY_REPORTED_WEBDAV_208: return "Already Reported";
+				case HttpCode.IM_USED_226: return "IM Used";
+
+				// 3xx
+				case HttpCode.MULTIPLE_CHOICES_300: return "Multiple Choices";
+				case HttpCode.MOVED_PERMANENTLY_301: return "Moved Permanently";
+				case HttpCode.FOUND_302: return "Found";
+				case HttpCode.SEE_OTHER_303: return "See Other";
+				case HttpCode.NOT_MODIFIED_304: return "Not Modified";
+				case HttpCode.USE_PROXY_305: return "Use Proxy";
+				case HttpCode.SWITCH_PROXY_306: return "Switch Proxy";
+				case HttpCode.TEMPORARY_REDIRECT_307: return "Temporary Redirect";
+				case HttpCode.RESUME_INCOMPLETE_308: return "Resume Incomplete";
+				
+				// 4xx
+				case HttpCode.BAD_REQUEST_400: return "Bad Request";
+				case HttpCode.UNAUTHORIZED_401: return "Unauthorized";
+				case HttpCode.PAYMENT_REQUIRED_402: return "Payment Required";
+				case HttpCode.FORBIDDEN_403: return "Forbidden";
+				case HttpCode.NOT_FOUND_404: return "Not Found";
+				case HttpCode.METHOD_NOT_ALLOWED_405: return "Method Not Allowed";
+				case HttpCode.NOT_ACCEPTABLE_406: return "Not Acceptable";
+				case HttpCode.PROXY_AUTHENTICATION_REQUIRED_407: return "Proxy Authentication Required";
+				case HttpCode.REQUEST_TIMEOUT_408: return "Request Timeout";
+				case HttpCode.CONFLICT_409: return "Conflict";
+				case HttpCode.GONE_410: return "Gone";
+				case HttpCode.LENGTH_REQUIRED_411: return "Length Required";
+				case HttpCode.PRECONDITION_FAILED_412: return "Precondition Failed";
+				case HttpCode.REQUEST_ENTITY_TOO_LARGE_413: return "Request Entity Too Large";
+				case HttpCode.REQUEST_URI_TOO_LONG_414: return "Request-URI Too Long";
+				case HttpCode.UNSUPPORTED_MEDIA_TYPE_415: return "Unsupported Media Type";
+				case HttpCode.REQUEST_RANGE_NOT_SATISFIABLE_416: return "Requested Range Not Satisfiable";
+				case HttpCode.EXPECTATION_FAILED_417: return "Expectation Failed";
+				case HttpCode.I_AM_A_TEAPOT_418: return "I'm a teapot";
+				case HttpCode.ENHACE_YOUR_CALM_420: return "Enhance Your Calm";
+				case HttpCode.UNPROCESSABLE_ENTITY_WEBDAV_422: return "Unprocessable Entity";
+				case HttpCode.LOCKED_WEBDAV_423: return "Locked";
+				case HttpCode.FAILED_DEPENDENCY_WEBDAV_424: return "Failed Dependency";
+				case HttpCode.UNORDERED_COLLECTION_425: return "Unordered Collection";
+				case HttpCode.UPGRADE_REQUIRED_426: return "Upgrade Required";
+				case HttpCode.PRECONDITION_REQUIRED_428: return "Precondition Required";
+				case HttpCode.TOO_MANY_REQUESTS_429: return "Too Many Requests";
+				case HttpCode.REQUEST_HEADER_FIELDS_TOO_LARGE_431: return "Request Header Fields Too Large";
+				case HttpCode.NO_RESPONSE_444: return "No Response";
+				case HttpCode.RETRY_WITH_449: return "Retry With";
+				case HttpCode.BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS_450: return "Blocked by Windows Parental Controls";
+				case HttpCode.CLIENT_CLOSED_REQUEST_499: return "Client Closed Request";
+
+				// 5xx
+				case HttpCode.INTERNAL_SERVER_ERROR_500: return "Internal Server Error";
+				case HttpCode.NOT_IMPLEMENTED_501: return "Not Implemented";
+				case HttpCode.BAD_GATEWAY_502: return "Bad Gateway";
+				case HttpCode.SERVICE_UNAVAILABLE_503: return "Service Unavailable";
+				case HttpCode.GATEWAY_TIMEOUT_504: return "Gateway Timeout";
+				case HttpCode.HTTP_VERSION_NOT_SUPPORTED_505: return "HTTP Version Not Supported";
+				case HttpCode.VARIANT_ALSO_NEGOTIATES_506: return "Variant Also Negotiates";
+				case HttpCode.INSUFFICIENT_STORAGE_WEBDAV_507: return "Insufficient Storage";
+				case HttpCode.LOOP_DETECTED_WEBDAV_508: return "Loop Detected";
+				case HttpCode.BANDWIDTH_LIMIT_EXCEEDED_509: return "Bandwidth Limit Exceeded";
+				case HttpCode.NOT_EXTENDED_510: return "Not Extended";
+				case HttpCode.NETWORK_AUTHENTICATION_REQUIRED_511: return "Network Authentication Required";
+				case HttpCode.NETWORK_READ_TIMEOUT_ERROR_598: return "Network read timeout error";
+				case HttpCode.NETWORK_CONNECT_TIMEOUT_ERROR_599: return "Network connect timeout error";
+
+				// ???
 				default: return "Unknwon";
 			}
 		}

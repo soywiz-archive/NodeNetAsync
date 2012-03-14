@@ -19,7 +19,7 @@ namespace NodeNetAsync.Net.Http
 		static Encoding HeaderEncoding = Encoding.GetEncoding("ISO-8859-1");
 		public ushort Port { get; protected set; }
 		public string Host { get; protected set; }
-
+		public int MaxKeepAliveRequests = 100;
 
 		static public HttpServer Create(Func<HttpRequest, HttpResponse, Task> HandleRequest)
 		{
@@ -35,10 +35,7 @@ namespace NodeNetAsync.Net.Http
 		{
 			// Read Http
 			var HttpLine = await Client.ReadLineAsync(HeaderEncoding);
-			if (Debugger.IsAttached)
-			{
-				Console.WriteLine("Connection({0}) : {1}", Request.ConnectionId, HttpLine);
-			}
+			//if (Debugger.IsAttached) Console.WriteLine("REQUEST: Connection({0}) : '{1}'", Request.ConnectionId, HttpLine);
 
 			if (HttpLine == "") throw(new IOException(""));
 
@@ -60,12 +57,21 @@ namespace NodeNetAsync.Net.Http
 			Request.Url = HttpParts[1];
 			Request.HttpVersion = HttpParts[2];
 
+			if (!Request.HttpVersion.StartsWith("HTTP/1."))
+			{
+				throw (new InvalidOperationException(String.Format("Invalid HTTP Request Connection({0}) : {1}", Request.ConnectionId, HttpLine)));
+			}
+
 			// Read Http Headers
 			while (true)
 			{
 				var HeaderLine = await Client.ReadLineAsync(HeaderEncoding);
+
+				//if (Debugger.IsAttached) Console.WriteLine("    HEADER: Connection({0}) : '{1}'", Request.ConnectionId, HeaderLine);
+
 				if (HeaderLine.Length == 0) break;
 				Request.Headers.Add(HttpHeader.Parse(HeaderLine));
+				if (Request.Headers.Count > 100) throw (new SequenceTooLongException());
 			}
 		}
 
@@ -87,27 +93,31 @@ namespace NodeNetAsync.Net.Http
 			await InitializeConnectionAsync(Client);
 
 			bool KeepAlive = true;
+			int KeepAliveCount = 0;
 			//bool KeepAlive = false;
 			try
 			{
 				do
 				{
-					var Request = new HttpRequest();
+					var Request = new HttpRequest(this.Port, ConnectionId, KeepAliveCount++);
 					var Response = new HttpResponse(Client);
 
 					try
 					{
-						Request.Port = this.Port;
-						Request.ConnectionId = ConnectionId;
-
 						try
 						{
 							await ReadHeadersAsync(Client, Request, Response);
 						}
 						catch (SequenceTooLongException)
 						{
+							KeepAlive = false;
 							//throw(new HttpException(HttpCode.REQUEST_URI_TOO_LONG_412));
 							throw (new HttpException(HttpCode.REQUEST_HEADER_FIELDS_TOO_LARGE_431));
+						}
+						catch (Exception Exception)
+						{
+							KeepAlive = false;
+							throw Exception;
 						}
 
 						Response.Headers["Content-Type"] = "text/html";
@@ -124,15 +134,31 @@ namespace NodeNetAsync.Net.Http
 								break;
 						}
 
-						//Console.WriteLine("aaaaaaaa");
+						// Reached maximum KeepAlive Requests.
+						if (KeepAliveCount >= MaxKeepAliveRequests)
+						{
+							Response.Headers["Connection"] = "close";
+							KeepAlive = false;
+						}
 
-						// Handle Request
-						foreach (var Filter in FilterList) await Filter.FilterAsync(Request, Response);
+						// Apply Pre Request filters
+						foreach (var Filter in FilterList)
+						{
+							await Filter.FilterAsync(Request, Response);
+						}
 
-						if (HandleRequest != null) await HandleRequest(Request, Response);
+						// Main HandleRequest
+						if (HandleRequest != null)
+						{
+							await HandleRequest(Request, Response);
+						}
 					}
 					catch (HttpException HttpException)
 					{
+						Response.Buffering = true;
+						Response.ChunkedTransferEncoding = true;
+						//Response.Buffering = false;
+						//Response.ChunkedTransferEncoding = true;
 						Response.SetHttpCode(HttpException.HttpCode);
 						YieldedException = HttpException;
 					}

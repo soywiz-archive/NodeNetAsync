@@ -40,6 +40,14 @@ namespace NodeNetAsync.Net.Http
 			AddOrSet(new HttpHeader(Key, Value), Replace: false);
 		}
 
+		public int Count
+		{
+			get
+			{
+				return List.Count;
+			}
+		}
+
 		public void Set(string Key, string Value)
 		{
 			AddOrSet(new HttpHeader(Key, Value), Replace: true);

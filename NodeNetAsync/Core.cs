@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,41 @@ namespace NodeNetAsync
 {
 	public class Core
 	{
+		public class CoreService : ServiceBase
+		{
+			Thread Thread;
+			Func<Task> Action;
+
+			public CoreService(Func<Task> Action)
+			{
+				this.Action = Action;
+			}
+
+			protected override void OnStart(string[] args)
+			{
+				Thread = new Thread(() =>
+				{
+					try
+					{
+						Action().Wait();
+					}
+					catch (Exception Exception)
+					{
+						Console.WriteLine(Exception);
+					}
+
+				});
+				Thread.Start();
+				base.OnStart(args);
+			}
+
+			protected override void OnStop()
+			{
+				Thread.Abort();
+				base.OnStop();
+			}
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -24,6 +60,7 @@ namespace NodeNetAsync
 			}
 			else
 #endif
+			if (Environment.UserInteractive)
 			{
 				try
 				{
@@ -34,7 +71,10 @@ namespace NodeNetAsync
 					Console.WriteLine(Exception);
 				}
 			}
-			while (true) Thread.Sleep(int.MaxValue);
+			else
+			{
+				ServiceBase.Run(new CoreService(Action));
+			}
 		}
 
 		/// <summary>

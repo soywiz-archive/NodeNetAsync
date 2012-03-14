@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Net;
+using NodeNetAsync.Streams;
 using NodeNetAsync.Utils;
 
 namespace NodeNetAsync.Net.Http
@@ -94,29 +95,37 @@ namespace NodeNetAsync.Net.Http
 					var Request = new HttpRequest();
 					var Response = new HttpResponse(Client);
 
-					Request.Port = this.Port;
-					Request.ConnectionId = ConnectionId;
-
-					await ReadHeadersAsync(Client, Request, Response);
-
-					Response.Headers["Content-Type"] = "text/html";
-
-					switch (Request.Headers["Connection"].ToLowerInvariant())
-					{
-						case "keep-alive":
-							Response.Headers["Connection"] = "keep-alive";
-							break;
-						default:
-						case "close":
-							Response.Headers["Connection"] = "close";
-							KeepAlive = false;
-							break;
-					}
-
-					//Console.WriteLine("aaaaaaaa");
-
 					try
 					{
+						Request.Port = this.Port;
+						Request.ConnectionId = ConnectionId;
+
+						try
+						{
+							await ReadHeadersAsync(Client, Request, Response);
+						}
+						catch (SequenceTooLongException)
+						{
+							//throw(new HttpException(HttpCode.REQUEST_URI_TOO_LONG_412));
+							throw (new HttpException(HttpCode.REQUEST_HEADER_FIELDS_TOO_LARGE_431));
+						}
+
+						Response.Headers["Content-Type"] = "text/html";
+
+						switch (Request.Headers["Connection"].ToLowerInvariant())
+						{
+							case "keep-alive":
+								Response.Headers["Connection"] = "keep-alive";
+								break;
+							default:
+							case "close":
+								Response.Headers["Connection"] = "close";
+								KeepAlive = false;
+								break;
+						}
+
+						//Console.WriteLine("aaaaaaaa");
+
 						// Handle Request
 						foreach (var Filter in FilterList) await Filter.FilterAsync(Request, Response);
 
@@ -148,9 +157,10 @@ namespace NodeNetAsync.Net.Http
 						{
 							if (Debugger.IsAttached)
 							{
-								Console.WriteLine("YIELD!!!!!!!!!!!!!!!!!! : " + YieldedException.ToString());
+								await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
 							}
-							await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
+
+							await Console.Out.WriteLineAsync("Exception : " + YieldedException.ToString());							
 						}
 						YieldedException = null;
 					}

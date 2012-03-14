@@ -87,23 +87,25 @@ namespace NodeNetAsync.Streams
 			await this.Stream.FlushAsync();
 		}
 
-		async public Task<string> ReadLineAsync(Encoding Encoding = null)
+		const int DefaultMaxBytesToRead = 8 * 1024;
+
+		async public Task<string> ReadLineAsync(Encoding Encoding = null, int MaxBytesToRead = DefaultMaxBytesToRead)
 		{
 			if (Encoding == null) Encoding = this.DefaultEncoding;
-			var String = Encoding.GetString(await ReadLineAsByteArrayAsync());
+			var String = Encoding.GetString(await ReadLineAsByteArrayAsync(MaxBytesToRead));
 			//Console.WriteLine(String);
 			return String;
 		}
 
-		async public Task<byte[]> ReadLineAsByteArrayAsync()
+		async public Task<byte[]> ReadLineAsByteArrayAsync(int MaxBytesToRead = DefaultMaxBytesToRead)
 		{
-			var Data = (await ReadLineAsMemoryStreamAsync());
+			var Data = (await ReadLineAsMemoryStreamAsync(MaxBytesToRead));
 			var Return = new byte[Data.Length];
 			Array.Copy(Data.GetBuffer(), 0, Return, 0, Return.Length);
 			return Return;
 		}
 
-		async public Task<byte[]> ReadBytesUntilByteAsync(byte EndByte)
+		async public Task<byte[]> ReadBytesUntilByteAsync(byte EndByte, int MaxBytesToRead = DefaultMaxBytesToRead)
 		{
 			var Return = new MemoryStream();
 			bool Found = false;
@@ -128,6 +130,8 @@ namespace NodeNetAsync.Streams
 					Return.Write(TempBuffer, 0, Readed);
 					RingBuffer.Skip(Readed);
 				}
+
+				if (Return.Length > MaxBytesToRead) throw (new SequenceTooLongException());
 			}
 
 			RingBuffer.Skip(1);
@@ -194,7 +198,7 @@ namespace NodeNetAsync.Streams
 		}
 #endif
 
-		async public Task<MemoryStream> ReadLineAsMemoryStreamAsync()
+		async public Task<MemoryStream> ReadLineAsMemoryStreamAsync(int MaxBytesToRead = DefaultMaxBytesToRead)
 		{
 			var Return = new MemoryStream();
 			bool Found = false;
@@ -219,6 +223,8 @@ namespace NodeNetAsync.Streams
 					Return.Write(TempBuffer, 0, Readed);
 					RingBuffer.Skip(Readed);
 				}
+
+				if (Return.Length > MaxBytesToRead) throw(new SequenceTooLongException());
 			} while (!Found);
 
 			await FillBuffer(1);
@@ -282,5 +288,9 @@ namespace NodeNetAsync.Streams
 			if (Encoding == null) Encoding = this.DefaultEncoding;
 			return Encoding.GetString(await ReadBytesAsync(Count));
 		}
+	}
+
+	public class SequenceTooLongException : InvalidOperationException
+	{
 	}
 }

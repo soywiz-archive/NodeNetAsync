@@ -117,6 +117,16 @@ namespace NodeNetAsync.Net.Http.Static
 				}
 			});
 
+			Response.Headers["Content-Type"] = CachedResult.ContentType;
+			if (CachedResult.ETag != null)
+			{
+				Response.Headers["ETag"] = CachedResult.ETag;
+			}
+			Response.Headers["Date"] = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+			Response.Headers["Last-Modified"] = CachedResult.FileInfo.LastWriteTimeUtc.ToString("R", CultureInfo.InvariantCulture);
+			Response.Headers["Cache-Control"] = "max-age=2419200, private";
+			Response.Headers["Expires"] = "Wed, 11 Apr 2022 18:23:41 GMT";
+
 			// Check ETag
 			if (Request.Headers["If-None-Match"] != "")
 			{
@@ -148,14 +158,7 @@ namespace NodeNetAsync.Net.Http.Static
 			Last-Modified:Wed, 11 Jan 2012 13:52:46 GMT
 			*/
 
-			Response.Headers["Content-Type"] = CachedResult.ContentType;
 			Response.Headers["Content-Length"] = CachedResult.FileInfo.Length.ToString();
-			if (CachedResult.ETag != null)
-			{
-				Response.Headers["ETag"] = CachedResult.ETag;
-			}
-			Response.Headers["Date"] = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
-			Response.Headers["Last-Modified"] = CachedResult.FileInfo.LastWriteTimeUtc.ToString("R", CultureInfo.InvariantCulture);
 
 			// Cached byte[]
 			if (CachedResult.Data != null)

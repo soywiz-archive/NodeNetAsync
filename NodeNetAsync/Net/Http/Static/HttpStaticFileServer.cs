@@ -22,11 +22,24 @@ namespace NodeNetAsync.Net.Http.Static
 		protected string Path;
 		AsyncCache<string, ResultStruct> Cache = new AsyncCache<string, ResultStruct>();
 		public long CacheSizeThresold = 512 * 1024; // 0.5 MB
+		protected FileSystemWatcher FileSystemWatcher;
 
 		public HttpStaticFileServer(string Path, bool Cache = true)
 		{
 			this.Path = Path;
 			this.Cache.Enabled = Cache;
+			this.FileSystemWatcher = new FileSystemWatcher(Path);
+			FileSystemWatcher.IncludeSubdirectories = true;
+			FileSystemWatcher.Created += FileSystemWatcher_Updated;
+			FileSystemWatcher.Changed += FileSystemWatcher_Updated;
+			FileSystemWatcher.Deleted += FileSystemWatcher_Updated;
+			FileSystemWatcher.EnableRaisingEvents = true;
+		}
+
+		void FileSystemWatcher_Updated(object sender, FileSystemEventArgs e)
+		{
+			var FilePath = Url.GetInnerFileRelativeToPath(this.Path, e.Name);
+			Cache.Remove(FilePath);
 		}
 
 		async Task IHttpFilter.FilterAsync(HttpRequest Request, HttpResponse Response)
@@ -67,10 +80,9 @@ namespace NodeNetAsync.Net.Http.Static
 			});
 
 			Response.Buffering = true;
-
+			Response.ChunkedTransferEncoding = false;
 			Response.Headers["Content-Type"] = CachedResult.ContentType;
 			Response.Headers["Content-Length"] = CachedResult.Size.ToString();
-			Response.ChunkedTransferEncoding = false;
 
 			// Cached byte[]
 			if (CachedResult.Data != null)
@@ -80,6 +92,8 @@ namespace NodeNetAsync.Net.Http.Static
 			// No cached byte[], stream the file
 			else
 			{
+				Response.Buffering = false;
+				//Response.ChunkedTransferEncoding = true;
 				await Response.StreamFileASync(CachedResult.RealFilePath);
 			}
 		}

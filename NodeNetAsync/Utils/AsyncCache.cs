@@ -57,5 +57,10 @@ namespace NodeNetAsync.Utils
 
 			return CurrentEntry.Value;
 		}
+
+		public void Remove(TKey Key)
+		{
+			Items.Remove(Key);
+		}
 	}
 }

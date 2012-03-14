@@ -12,6 +12,16 @@ namespace NodeNetAsync.Net.Http
 	public class HttpResponse : IAsyncWriter
 	{
 		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Client"></param>
+		public HttpResponse(TcpSocket Client)
+		{
+			this.Socket = Client;
+			this.SetHttpCode(HttpCode.OK_200);
+		}
+
+		/// <summary>
 		/// Headers that will be sent as the Response.
 		/// </summary>
 		public HttpHeaders Headers = new HttpHeaders();
@@ -34,7 +44,7 @@ namespace NodeNetAsync.Net.Http
 		public void SetHttpCode(HttpCode Code, string CodeString = null)
 		{
 			if (CodeString == null) CodeString = HttpCodeUtils.GetStringFromId((HttpCode)Code);
-			
+
 			this.HttpCodeNumber = (int)Code;
 			this.HttpCodeString = CodeString;
 		}
@@ -53,7 +63,7 @@ namespace NodeNetAsync.Net.Http
 		/// 
 		/// </summary>
 		MemoryStream Buffer = new MemoryStream();
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -100,15 +110,6 @@ namespace NodeNetAsync.Net.Http
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="Client"></param>
-		public HttpResponse(TcpSocket Client)
-		{
-			this.Socket = Client;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <returns></returns>
 		async public Task SendHeadersAsync()
 		{
@@ -123,6 +124,11 @@ namespace NodeNetAsync.Net.Http
 				else
 				{
 					//Headers.Remove("Transfer-Encoding");
+				}
+
+				if (this.HttpCodeNumber == 0)
+				{
+					await Console.Error.WriteLineAsync("HttpCodeNumber == 0!");
 				}
 
 				var HeadersString = "";

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
@@ -46,11 +47,19 @@ namespace NodeNetAsync
 			}
 		}
 
+		static public Version Version
+		{
+			get
+			{
+				return Assembly.GetAssembly(typeof(Core)).GetName().Version;
+			}
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="Action"></param>
-		static public void Loop(Func<Task> Action)
+		static public void Loop(Func<Task> Action, bool ShowVersion = true)
 		{
 #if false
 			//if (Debugger.IsAttached)
@@ -60,6 +69,11 @@ namespace NodeNetAsync
 			}
 			else
 #endif
+			if (ShowVersion)
+			{
+				Console.WriteLine("Node.NET {0}", Core.Version);
+			}
+
 			if (Environment.UserInteractive)
 			{
 				try

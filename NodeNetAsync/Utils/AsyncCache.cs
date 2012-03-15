@@ -60,7 +60,8 @@ namespace NodeNetAsync.Utils
 
 		public void Remove(TKey Key)
 		{
-			Items.Remove(Key);
+			try { Items.Remove(Key); }
+			catch { }
 		}
 	}
 }

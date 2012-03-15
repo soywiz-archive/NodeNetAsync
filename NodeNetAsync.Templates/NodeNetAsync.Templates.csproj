@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E25C9AC5-8E32-42B6-AF89-1EB6CBA96B70}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NodeNetAsync.Templates</RootNamespace>
+    <AssemblyName>NodeNetAsync.Templates</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\TemplateRenderer.cs" />
+    <Compile Include="Views\Template\Html\HtmlUtils.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ForeachParserNode.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNode.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeAccess.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeAutoescape.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeBinaryOperation.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeBlockParent.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeCallBlock.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeConstant.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeContainer.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeContext.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeExtends.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeFilter.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeIdentifier.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeIf.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeLiteral.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeOutputExpression.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeParent.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeTernaryOperation.cs" />
+    <Compile Include="Views\Template\Templates\ParserNodes\ParserNodeUnaryOperation.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\DynamicUtils.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\Filters\CoreFilters.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\Filters\RawWrapper.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\Filters\TemplateFilterAttribute.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\FinalizeRenderException.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\TemplateCode.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\TemplateContext.cs" />
+    <Compile Include="Views\Template\Templates\Runtime\TemplateScope.cs" />
+    <Compile Include="Views\Template\Templates\TemplateCodeGen.cs" />
+    <Compile Include="Views\Template\Templates\TemplateFactory.cs" />
+    <Compile Include="Views\Template\Templates\TemplateParser.cs" />
+    <Compile Include="Views\Template\Templates\TemplateProvider\ITemplateProvider.cs" />
+    <Compile Include="Views\Template\Templates\TemplateProvider\TemplateProviderLocalFileSystem.cs" />
+    <Compile Include="Views\Template\Templates\TemplateProvider\TemplateProviderMemory.cs" />
+    <Compile Include="Views\Template\Templates\Tokenizers\ExpressionTokenizer.cs" />
+    <Compile Include="Views\Template\Templates\Tokenizers\TemplateToken.cs" />
+    <Compile Include="Views\Template\Templates\Tokenizers\TemplateTokenizer.cs" />
+    <Compile Include="Views\Template\Templates\Tokenizers\TokenizerStringReader.cs" />
+    <Compile Include="Views\Template\Templates\Tokenizers\TokenReader.cs" />
+    <Compile Include="Views\Template\Templates\Utils\StringUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NodeNetAsync\NodeNetAsync.csproj">
+      <Project>{9b1bbe3f-4c0a-4ef4-be2a-a0a4533fd4db}</Project>
+      <Name>NodeNetAsync</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

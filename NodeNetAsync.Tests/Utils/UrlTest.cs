@@ -10,13 +10,13 @@ namespace NodeNetAsync.Tests.Utils
 		[TestMethod]
 		public void ExpandDirectoriesTest()
 		{
-			Assert.AreEqual("Path/To/File2", Url.ExpandDirectories("Path/To/File/.././//File2"));
-			Assert.AreEqual("/Path/To/File2", Url.ExpandDirectories("/Path/To/File2"));
-			Assert.AreEqual("", Url.ExpandDirectories(""));
-			Assert.AreEqual("/", Url.ExpandDirectories("/"));
-			Assert.AreEqual("/", Url.ExpandDirectories("////"));
-			Assert.AreEqual("/", Url.ExpandDirectories(@"\\\\"));
-			Assert.AreEqual("/", Url.ExpandDirectories("/../.././"));
+			Assert.AreEqual("Path/To/File2", Url.Normalize("Path/To/File/.././//File2"));
+			Assert.AreEqual("/Path/To/File2", Url.Normalize("/Path/To/File2"));
+			Assert.AreEqual("", Url.Normalize(""));
+			Assert.AreEqual("/", Url.Normalize("/"));
+			Assert.AreEqual("/", Url.Normalize("////"));
+			Assert.AreEqual("/", Url.Normalize(@"\\\\"));
+			Assert.AreEqual("/", Url.Normalize("/../.././"));
 		}
 
 		[TestMethod]

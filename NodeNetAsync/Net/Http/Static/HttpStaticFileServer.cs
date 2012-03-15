@@ -8,52 +8,94 @@ using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.OS;
 using NodeNetAsync.Utils;
+using NodeNetAsync.Vfs;
 
 namespace NodeNetAsync.Net.Http.Static
 {
+	public delegate Task<HttpStaticFileServer.ResultStruct> ExtensionHandlerDelegateAsync(HttpStaticFileServer.HandlerStruct HandlerStruct);
+
 	public class HttpStaticFileServer : IHttpFilter
 	{
 		public struct ResultStruct
 		{
 			public string RealFilePath;
 			public string ContentType;
-			public FileInfo FileInfo;
+			public VirtualFileInfo FileInfo;
+			public bool Exists;
 			public byte[] Data;
 			public string ETag;
 		}
 
-		protected string StaticPath;
-		AsyncCache<string, ResultStruct> Cache = new AsyncCache<string, ResultStruct>(Enabled: true);
+		public class HandlerStruct
+		{
+			/// <summary>
+			/// 
+			/// </summary>
+			public IVirtualFileSystem FileSystem;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			public string FilePath;
+
+			/// <summary>
+			/// 
+			/// </summary>
+			protected HttpStaticFileServer HttpStaticFileServer;
+
+			internal HandlerStruct(HttpStaticFileServer HttpStaticFileServer)
+			{
+				this.HttpStaticFileServer = HttpStaticFileServer;
+			}
+
+			public void AddCacheRelatedFile(string File)
+			{
+				this.HttpStaticFileServer.AddUncacheChain(File, FilePath);
+				Console.WriteLine("'{0}' -> '{1}'", File, FilePath);
+			}
+		}
+
 		public long CacheSizeThresold = 512 * 1024; // 0.5 MB
-		protected FileSystemWatcher FileSystemWatcher;
+		public IVirtualFileSystem VirtualFileSystem { get; protected set; }
+		protected AsyncCache<string, ResultStruct> Cache = new AsyncCache<string, ResultStruct>(Enabled: true);
 
-		public HttpStaticFileServer(string Path, bool Cache = true)
+		protected Dictionary<string, SortedSet<string>> UncacheChain = new Dictionary<string, SortedSet<string>>();
+
+		protected void AddUncacheChain(string File, string File2)
 		{
-			this.StaticPath = Path;
+			if (!UncacheChain.ContainsKey(File)) UncacheChain[File] = new SortedSet<string>();
+			UncacheChain[File].Add(File2);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		Dictionary<string, ExtensionHandlerDelegateAsync> ExtensionHandlersAsync = new Dictionary<string, ExtensionHandlerDelegateAsync>();
+
+		public HttpStaticFileServer(IVirtualFileSystem VirtualFileSystem, bool Cache = true)
+		{
+			this.VirtualFileSystem = VirtualFileSystem;
 			this.Cache.Enabled = Cache;
-			this.FileSystemWatcher = new FileSystemWatcher(Path);
-			FileSystemWatcher.IncludeSubdirectories = true;
-			FileSystemWatcher.Created += FileSystemWatcher_Updated;
-			FileSystemWatcher.Changed += FileSystemWatcher_Updated;
-			FileSystemWatcher.Deleted += FileSystemWatcher_Updated;
-			FileSystemWatcher.Renamed += FileSystemWatcher_Renamed;
-			FileSystemWatcher.EnableRaisingEvents = true;
+			this.VirtualFileSystem.OnEvent += VirtualFileSystem_OnEvent;
 		}
 
-		void FileSystemWatcher_Renamed(object sender, RenamedEventArgs e)
+		void VirtualFileSystem_OnEvent(VirtualFileEvent obj)
 		{
-			_FileSystemWatcher_Updated(e.OldName);
-			_FileSystemWatcher_Updated(e.Name);
+			if (obj.File1 != null) _FileSystemWatcher_Updated(obj.File1);
+			if (obj.File2 != null) _FileSystemWatcher_Updated(obj.File2);
 		}
 
-		void FileSystemWatcher_Updated(object sender, FileSystemEventArgs e)
+		void _FileSystemWatcher_Updated(string FilePath)
 		{
-			_FileSystemWatcher_Updated(e.Name);
-		}
+			if (UncacheChain.ContainsKey(FilePath))
+			{
+				foreach (var Item in UncacheChain[FilePath])
+				{
+					Cache.Remove(Item);
+				}
+				UncacheChain[FilePath].Clear();
+			}
 
-		void _FileSystemWatcher_Updated(string Name)
-		{
-			var FilePath = Url.GetInnerFileRelativeToPath(this.StaticPath, Name);
 			//var CacheKey = FilePath.ToLowerInvariant();
 			var CacheKey = FilePath;
 			Cache.Remove(CacheKey);
@@ -71,25 +113,43 @@ namespace NodeNetAsync.Net.Http.Static
 		{
 			var Uri = Request.Url;
 			Uri = Uri.Split(new[] { '?' }, 2)[0];
-			var FilePath = Url.GetInnerFileRelativeToPath(this.StaticPath, Uri);
+			var FilePath = Uri;
 			if (Path.GetExtension(FilePath) == "")
 			{
 				if (Directory.Exists(FilePath))
 				{
-					FilePath = Url.ExpandDirectories(FilePath + "/index.html");
+					FilePath = Url.Normalize(FilePath + "/index.html");
 				}
 			}
 
 			//var CacheKey = FilePath.ToLowerInvariant();
-			var CacheKey = FilePath;
-			var CachedResult = await Cache.GetAsync(CacheKey, async () =>
+			//var CacheKey = FilePath;
+			var CachedResult = await Cache.GetAsync(FilePath, async () =>
 			{
-				if (Cache.Enabled)
+				var Extension = Path.GetExtension(FilePath);
+				if (ExtensionHandlersAsync.ContainsKey(Extension))
 				{
-					await Console.Out.WriteLineAsync(String.Format("Caching '{0}'", CacheKey));
+					try
+					{
+						return await ExtensionHandlersAsync[Extension](new HandlerStruct(this)
+						{
+							FileSystem = VirtualFileSystem,
+							FilePath = FilePath,
+						});
+					}
+					catch (FileNotFoundException)
+					{
+						throw (new HttpException(HttpCode.NOT_FOUND_404));
+					}
 				}
 
-				var FileInfo = await FileSystem.GetFileInfoAsync(FilePath);
+				if (Cache.Enabled)
+				{
+					await Console.Out.WriteLineAsync(String.Format("Caching '{0}'", FilePath));
+				}
+
+				var FileInfo = await VirtualFileSystem.GetFileInfoAsync(FilePath);
+
 				if (FileInfo.Exists)
 				{
 					bool ShouldCacheInMemory = FileInfo.Length <= CacheSizeThresold;
@@ -98,7 +158,7 @@ namespace NodeNetAsync.Net.Http.Static
 
 					if (ShouldCacheInMemory)
 					{
-						Data = await FileSystem.ReadAllBytesAsync(FilePath);
+						Data = await VirtualFileSystem.ReadAllBytesAsync(FilePath);
 						ETag = BitConverter.ToString(MD5.Create().ComputeHash(Data));
 					}
 
@@ -109,11 +169,12 @@ namespace NodeNetAsync.Net.Http.Static
 						FileInfo = FileInfo,
 						ETag = ETag,
 						Data = Data,
+						Exists = true,
 					};
 				}
 				else
 				{
-					throw(new HttpException(HttpCode.NOT_FOUND_404));
+					throw (new HttpException(HttpCode.NOT_FOUND_404));
 				}
 			});
 
@@ -172,6 +233,17 @@ namespace NodeNetAsync.Net.Http.Static
 				//Response.ChunkedTransferEncoding = true;
 				await Response.StreamFileASync(CachedResult.RealFilePath);
 			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Extension"></param>
+		/// <param name="HandlerAsync"></param>
+		public void AddExtensionHandler(string Extension, ExtensionHandlerDelegateAsync HandlerAsync)
+		{
+			ExtensionHandlersAsync["." + Extension] = HandlerAsync;
+			//throw new NotImplementedException();
 		}
 	}
 }

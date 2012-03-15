@@ -13,7 +13,7 @@ namespace NodeNetAsync.Utils
 		/// </summary>
 		/// <param name="Url"></param>
 		/// <returns></returns>
-		static protected string Normalize(string Url)
+		static protected string _Normalize(string Url)
 		{
 			return Url.Replace('\\', '/');
 		}
@@ -47,9 +47,9 @@ namespace NodeNetAsync.Utils
 		/// </summary>
 		/// <param name="Url"></param>
 		/// <returns></returns>
-		static public string ExpandDirectories(string Url)
+		static public string Normalize(string Url)
 		{
-			Url = Normalize(Url);
+			Url = _Normalize(Url);
 			if (Url.StartsWith("/"))
 			{
 				return "/" + ExpandDirectoriesInternal(Url.Substring(1).TrimStart('/'));
@@ -68,8 +68,8 @@ namespace NodeNetAsync.Utils
 		/// <returns></returns>
 		static public string GetInnerFileRelativeToPath(string Base, string Relative)
 		{
-			Base = ExpandDirectories(Normalize(Base));
-			Relative = ExpandDirectories(Normalize(Relative));
+			Base = Normalize(Base);
+			Relative = Normalize(Relative);
 			return Base.TrimEnd('/') + "/" + Relative.TrimStart('/');
 		}
 	}

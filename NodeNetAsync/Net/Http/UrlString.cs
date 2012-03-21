@@ -32,7 +32,7 @@ namespace NodeNetAsync.Net.Http
 					if (Port != null) Return.Append(":").Append(Port.Value);
 				}
 				if (Path != null) Return.Append(Path);
-				if (Query != null) Return.Append("?").Append(Query);
+				if (Query != null && Query.String != null && Query.String != "") Return.Append("?").Append(Query);
 				return Return.ToString();
 			}
 		}
@@ -115,6 +115,11 @@ namespace NodeNetAsync.Net.Http
 		static public implicit operator string(UrlString UrlString)
 		{
 			return UrlString.String;
+		}
+
+		public override string ToString()
+		{
+			return Full;
 		}
 	}
 }

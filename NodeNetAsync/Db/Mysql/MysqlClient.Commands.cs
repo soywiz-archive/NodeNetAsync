@@ -78,20 +78,23 @@ namespace NodeNetAsync.Db.Mysql
 				int NumberOfFields = HandleResultSetHeaderPacket(await ReadPacketAsync());
 				//Console.WriteLine("Number of fields: {0}", NumberOfFields);
 
-				// Read fields
-				while (true)
+				if (NumberOfFields > 0)
 				{
-					var InPacket = await ReadPacketAsync();
-					if (CheckEofPacket(InPacket)) break;
-					MysqlQueryResult.Columns.Add(HandleFieldPacket(InPacket));
-				}
+					// Read fields
+					while (true)
+					{
+						var InPacket = await ReadPacketAsync();
+						if (CheckEofPacket(InPacket)) break;
+						MysqlQueryResult.Columns.Add(HandleFieldPacket(InPacket));
+					}
 
-				// Read words
-				while (true)
-				{
-					var InPacket = await ReadPacketAsync();
-					if (CheckEofPacket(InPacket)) break;
-					MysqlQueryResult.Rows.Add(HandleRowDataPacket(InPacket, MysqlQueryResult.Columns));
+					// Read words
+					while (true)
+					{
+						var InPacket = await ReadPacketAsync();
+						if (CheckEofPacket(InPacket)) break;
+						MysqlQueryResult.Rows.Add(HandleRowDataPacket(InPacket, MysqlQueryResult.Columns));
+					}
 				}
 			});
 

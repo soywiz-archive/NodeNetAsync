@@ -150,9 +150,12 @@ namespace NodeNetAsync.Net.Http
 							{
 								throw(new HttpException(HttpCode.BAD_REQUEST_400));
 							}
+							if (ContentLength > 128 * 1024)
+							{
+								throw (new HttpException(HttpCode.BAD_REQUEST_400));
+							}
 							Request.Content = await Client.ReadBytesAsync(ContentLength);
 						}
-
 
 						// Apply Pre Request filters
 						foreach (var Filter in FilterList)

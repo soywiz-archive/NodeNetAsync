@@ -10,6 +10,8 @@ namespace NodeNetAsync.Db.Mysql
 	{
 		public string Quote(object Param)
 		{
+			if (Param == null) return "NULL";
+
 			var Out = new StringBuilder();
 
 			Out.Append("'");

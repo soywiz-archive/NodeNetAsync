@@ -42,10 +42,14 @@ namespace NodeNetAsync.Db.Mysql
 
 		byte[] GetPacketBytes()
 		{
+#if true
+			return this.Stream.ToArray();
+#else
 			var Data = new byte[Stream.Length];
 			var Buffer = this.Stream.GetBuffer();
 			Array.Copy(Buffer, 0, Data, 0, Data.Length);
 			return Data;
+#endif
 		}
 
 		public byte[] ReadLengthCodedStringBytes()

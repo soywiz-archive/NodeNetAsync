@@ -41,7 +41,7 @@ namespace NodeNetAsync.Tests.Streams
 			var StreamWriter = new StreamWriter(MemoryStream) { AutoFlush = true };
 			StreamWriter.Write("line1\r");
 
-			Task.Run(async () =>
+			var Task2 = Task.Run(async () =>
 			{
 				await Task.Delay(2);
 				StreamWriter.Write("\n");
@@ -52,6 +52,8 @@ namespace NodeNetAsync.Tests.Streams
 
 			Assert.AreEqual("line1", await Stream.ReadLineAsync(Encoding.UTF8));
 			Assert.AreEqual("line2", await Stream.ReadLineAsync(Encoding.UTF8));
+
+			await Task2;
 		}
 	}
 }

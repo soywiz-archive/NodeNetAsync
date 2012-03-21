@@ -10,9 +10,17 @@ namespace System.Linq
 {
 	static public class Extensions
 	{
+		static public TType[] GetSlice<TType>(this TType[] Data, int Offset, int Count)
+		{
+			var Return = new TType[Count];
+			Array.Copy(Data, Offset, Return, 0, Count);
+			return Return;
+		}
+
 		static public byte[] GetContentBytes(this MemoryStream MemoryStream)
 		{
-			return ArrayUtils.GetSlice(MemoryStream.GetBuffer(), 0, (int)MemoryStream.Length);
+			return MemoryStream.ToArray();
+			//return MemoryStream.GetBuffer().GetSlice(0, (int)MemoryStream.Length);
 		}
 	}
 }

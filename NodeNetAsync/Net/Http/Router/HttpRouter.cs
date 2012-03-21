@@ -34,9 +34,13 @@ namespace NodeNetAsync.Net.Http.Router
 
 		async public Task RouteAsync(HttpRequest Request, HttpResponse Response)
 		{
+			//var UrlParts = Request.Url.Split(new[] { '?' }, 2);
+			//var 
+			var Path = Request.Url.Path;
+
 			foreach (var Route in Routes)
 			{
-				if (Route.Key.IsMatch(Request.Url))
+				if (Route.Key.IsMatch(Path))
 				{
 					await Route.Value(Request, Response);
 					return;
@@ -45,7 +49,7 @@ namespace NodeNetAsync.Net.Http.Router
 			if (DefaultRoute == null)
 			{
 				Response.Headers["Content-Type"] = "text/html";
-				Console.WriteLine("No rute found for '" + Request.Url + "'");
+				Console.WriteLine("No rute found for '" + Path + "'");
 				throw (new Exception("No route found!"));
 			}
 			else

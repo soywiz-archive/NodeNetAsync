@@ -74,7 +74,7 @@ namespace CSharpUtils.Templates
 			return await AsyncCachedTemplatesByFile.GetAsync(Name, async () =>
 			{
 				Console.WriteLine("Generating code for template: '{0}'", Name);
-				using (var TemplateStream = TemplateProvider.GetTemplate(Name))
+				using (var TemplateStream = await TemplateProvider.GetTemplateAsync(Name))
 				{
 					var TemplateData = new byte[TemplateStream.Length];
 					await TemplateStream.ReadAsync(TemplateData, 0, (int)TemplateStream.Length);

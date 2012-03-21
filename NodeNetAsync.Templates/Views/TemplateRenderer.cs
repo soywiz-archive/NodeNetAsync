@@ -11,37 +11,19 @@ using CSharpUtils.Templates.TemplateProvider;
 using CSharpUtils.Templates.Templates.TemplateProvider;
 using NodeNetAsync.Streams;
 using NodeNetAsync.Utils;
+using NodeNetAsync.Vfs;
 
 namespace NodeNetAsync.Views
 {
-	public class FileSystemTemplateRenderer : TemplateRenderer
+	public class VirtualFileSystemTemplateRenderer : TemplateRenderer
 	{
-		public FileSystemTemplateRenderer(string TemplateFolder, bool OutputGeneratedCode)
+		public VirtualFileSystemTemplateRenderer(IVirtualFileSystem FileSystem, bool OutputGeneratedCode)
 		{
 			this.TemplateFactory = new TemplateFactory(
-				new TemplateProviderLocalFileSystem(TemplateFolder),
+				new TemplateProviderVirtualFileSystem(FileSystem),
 				Encoding: Encoding.UTF8,
 				OutputGeneratedCode: OutputGeneratedCode
 			);
-		}
-	}
-
-	public class MemoryTemplateRenderer : TemplateRenderer
-	{
-		TemplateProviderMemory TemplateProviderMemory;
-
-		public MemoryTemplateRenderer(bool OutputGeneratedCode)
-		{
-			this.TemplateFactory = new TemplateFactory(
-				this.TemplateProviderMemory = new TemplateProviderMemory(),
-				Encoding: Encoding.UTF8,
-				OutputGeneratedCode: OutputGeneratedCode
-			);
-		}
-
-		public void Add(string Name, string Contents)
-		{
-			TemplateProviderMemory.Add(Name, Contents);
 		}
 	}
 
@@ -49,18 +31,11 @@ namespace NodeNetAsync.Views
 	{
 		protected TemplateFactory TemplateFactory;
 
-		async static public Task<FileSystemTemplateRenderer> CreateFromFileSystemAsync(string TemplateFolder, bool OutputGeneratedCode = false)
+		async static public Task<VirtualFileSystemTemplateRenderer> CreateFromVirtualFileSystemAsync(IVirtualFileSystem FileSystem, bool OutputGeneratedCode = false)
 		{
 			await Task.Yield();
-			return new FileSystemTemplateRenderer(TemplateFolder, OutputGeneratedCode);
+			return new VirtualFileSystemTemplateRenderer(FileSystem, OutputGeneratedCode);
 		}
-
-		async static public Task<MemoryTemplateRenderer> CreateFromMemoryAsync(bool OutputGeneratedCode = false)
-		{
-			await Task.Yield();
-			return new MemoryTemplateRenderer(OutputGeneratedCode);
-		}
-
 		async protected Task<TemplateCode> GetTemplateCodeByFileAsync(string TemplateName)
 		{
 			return await TemplateFactory.GetTemplateCodeByFileAsync(TemplateName);

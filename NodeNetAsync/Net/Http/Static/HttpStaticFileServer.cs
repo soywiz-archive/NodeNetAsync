@@ -36,7 +36,7 @@ namespace NodeNetAsync.Net.Http.Static
 			/// <summary>
 			/// 
 			/// </summary>
-			public string FilePath;
+			public VirtualFilePath FilePath;
 
 			/// <summary>
 			/// 
@@ -111,9 +111,7 @@ namespace NodeNetAsync.Net.Http.Static
 
 		async Task IHttpFilter.FilterAsync(HttpRequest Request, HttpResponse Response)
 		{
-			var Uri = Request.Url;
-			Uri = Uri.Split(new[] { '?' }, 2)[0];
-			var FilePath = Uri;
+			var FilePath = Request.Url.Path;
 			if (Path.GetExtension(FilePath) == "")
 			{
 				if (Directory.Exists(FilePath))

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace NodeNetAsync.Utils
 			public TValue Value;
 		}
 
-		protected Dictionary<TKey, Entry> Items = new Dictionary<TKey, Entry>();
+		protected ConcurrentDictionary<TKey, Entry> Items = new ConcurrentDictionary<TKey, Entry>();
 
 		private bool _Enabled;
 
@@ -60,8 +61,8 @@ namespace NodeNetAsync.Utils
 
 		public void Remove(TKey Key)
 		{
-			try { Items.Remove(Key); }
-			catch { }
+			Entry Value;
+			Items.TryRemove(Key, out Value);
 		}
 	}
 }

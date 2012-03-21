@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using NodeNetAsync.Utils;
@@ -29,7 +30,7 @@ namespace NodeNetAsync.Vfs.Local
 			return Url.GetInnerFileRelativeToPath(RootPath, RelativePath);
 		}
 
-		protected string GetRelativePathFromAbsolute(string AbsolutePath)
+		protected VirtualFilePath GetRelativePathFromAbsolute(string AbsolutePath)
 		{
 			AbsolutePath = Url.Normalize(AbsolutePath);
 			if (AbsolutePath.StartsWith(RootPath))
@@ -42,19 +43,39 @@ namespace NodeNetAsync.Vfs.Local
 			}
 		}
 
+		private VirtualFileInfo ConvertFileSystemInfoToVirtualFileInfo(FileSystemInfo FileSystemInfo)
+		{
+			var VirtualFileInfo = new VirtualFileInfo()
+			{
+				Path = GetRelativePathFromAbsolute(FileSystemInfo.FullName),
+				Exists = FileSystemInfo.Exists,
+				LastWriteTimeUtc = FileSystemInfo.LastWriteTimeUtc,
+			};
+
+			var FileInfo = FileSystemInfo as FileInfo;
+			var DirectoryInfo = FileSystemInfo as DirectoryInfo;
+
+			if (FileInfo != null)
+			{
+				VirtualFileInfo.Length = FileInfo.Length;
+				VirtualFileInfo.Type = VirtualFileType.File;
+			}
+			else if (DirectoryInfo != null)
+			{
+				VirtualFileInfo.Length = 0;
+				VirtualFileInfo.Type = VirtualFileType.Directory;
+			}
+
+			return VirtualFileInfo;
+		}
+
 		async public Task<VirtualFileInfo> GetFileInfoAsync(VirtualFilePath Path)
 		{
 			return await Task.Run(() =>
 			{
 				try
 				{
-					var FileInfo = new FileInfo(GetAbsolutePathFromRelative(Path));
-					return new VirtualFileInfo()
-					{
-						Length = FileInfo.Length,
-						Exists = FileInfo.Exists,
-						LastWriteTimeUtc = FileInfo.LastWriteTimeUtc,
-					};
+					return ConvertFileSystemInfoToVirtualFileInfo(new FileInfo(GetAbsolutePathFromRelative(Path)));
 				}
 				catch
 				{
@@ -66,26 +87,25 @@ namespace NodeNetAsync.Vfs.Local
 			});
 		}
 
-		async public Task<VirtualFileStream> OpenAsync(VirtualFilePath Path, FileMode FileMode, FileAccess FileAccess, FileShare FileShare)
+		async public Task<IVirtualFileStream> OpenAsync(VirtualFilePath Path, FileMode FileMode, FileAccess FileAccess, FileShare FileShare)
 		{
-			Exception YieldedException = null;
-
-			var Result = await Task.Run(() =>
+			return await TaskEx.RunPropagatingExceptionsAsync(() =>
 			{
-				try
-				{
-					return File.Open(GetAbsolutePathFromRelative(Path), FileMode, FileAccess, FileShare);
-				}
-				catch (Exception Exception)
-				{
-					YieldedException = Exception;
-					return null;
-				}
+				return new VirtualFileStream(File.Open(GetAbsolutePathFromRelative(Path), FileMode, FileAccess, FileShare));
 			});
+		}
 
-			if (YieldedException != null) throw YieldedException;
-
-			return Result;
+		async public Task<IEnumerable<VirtualFileInfo>> EnumerateDirectoryAsync(VirtualFilePath Path)
+		{
+			return await TaskEx.RunPropagatingExceptionsAsync(() =>
+			{
+				var List = new List<VirtualFileInfo>();
+				foreach (var FileSystemInfo in new DirectoryInfo(GetAbsolutePathFromRelative(Path)).EnumerateFileSystemInfos())
+				{
+					List.Add(ConvertFileSystemInfoToVirtualFileInfo(FileSystemInfo));
+				}
+				return List;
+			});
 		}
 
 		private event Action<VirtualFileEvent> _OnEvent;
@@ -107,6 +127,12 @@ namespace NodeNetAsync.Vfs.Local
 				_OnEvent -= value;
 				UpdatedOnEvent();
 			}
+		}
+
+		async public Task CreateDirectoryAsync(VirtualFilePath Path, DirectorySecurity DirectorySecurity)
+		{
+			await Task.Yield();
+			Directory.CreateDirectory(GetAbsolutePathFromRelative(Path), DirectorySecurity);
 		}
 	}
 }

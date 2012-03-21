@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Vfs
 {
-	public class VirtualFileStream : IDisposable
+	public class VirtualFileStream : IVirtualFileStream
 	{
 		Stream Stream;
 
@@ -26,19 +26,34 @@ namespace NodeNetAsync.Vfs
 			return await Stream.ReadAsync(Buffer, Offset, Count);
 		}
 
-		static public implicit operator VirtualFileStream(Stream Stream)
+		async public Task WriteAsync(byte[] Buffer, int Offset, int Count)
+		{
+			await Stream.WriteAsync(Buffer, Offset, Count);
+		}
+
+		/*
+		static public implicit operator IVirtualFileStream(Stream Stream)
 		{
 			return new VirtualFileStream(Stream);
 		}
 
-		static public implicit operator Stream(VirtualFileStream VirtualFileStream)
+		static public implicit operator Stream(IVirtualFileStream VirtualFileStream)
 		{
 			return VirtualFileStream.Stream;
 		}
+		*/
 
 		public void Dispose()
 		{
 			this.Stream.Dispose();
+		}
+
+		public Stream SystemStream
+		{
+			get
+			{
+				return this.Stream;
+			}
 		}
 	}
 }

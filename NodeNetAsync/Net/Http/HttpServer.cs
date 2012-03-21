@@ -141,6 +141,19 @@ namespace NodeNetAsync.Net.Http
 							KeepAlive = false;
 						}
 
+						Request.Content = new byte[0];
+						var ContentLengthString = Request.Headers["Content-Length"];
+						if (ContentLengthString != "" && ContentLengthString != null)
+						{
+							int ContentLength = 0;
+							if (!int.TryParse(ContentLengthString, out ContentLength))
+							{
+								throw(new HttpException(HttpCode.BAD_REQUEST_400));
+							}
+							Request.Content = await Client.ReadBytesAsync(ContentLength);
+						}
+
+
 						// Apply Pre Request filters
 						foreach (var Filter in FilterList)
 						{

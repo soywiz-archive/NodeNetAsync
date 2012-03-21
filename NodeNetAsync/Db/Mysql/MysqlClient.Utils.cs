@@ -12,6 +12,8 @@ namespace NodeNetAsync.Db.Mysql
 		{
 			var Out = new StringBuilder();
 
+			Out.Append("'");
+
 			foreach (var Char in Param.ToString())
 			{
 				switch (Char)
@@ -22,6 +24,8 @@ namespace NodeNetAsync.Db.Mysql
 					default: Out.Append(Char); break;
 				}
 			}
+
+			Out.Append("'");
 
 			return Out.ToString();
 		}
@@ -49,6 +53,8 @@ namespace NodeNetAsync.Db.Mysql
 						Out.Append(Char);
 					}
 				}
+
+				//Console.WriteLine("---{0}", Out.ToString());
 
 				return Out.ToString();
 			}

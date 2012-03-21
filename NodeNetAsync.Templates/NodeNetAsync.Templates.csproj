@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Irony">
+      <HintPath>.\Irony.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -39,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\TemplateRenderer.cs" />
     <Compile Include="Views\Template\Html\HtmlUtils.cs" />
@@ -74,8 +76,7 @@
     <Compile Include="Views\Template\Templates\TemplateFactory.cs" />
     <Compile Include="Views\Template\Templates\TemplateParser.cs" />
     <Compile Include="Views\Template\Templates\TemplateProvider\ITemplateProvider.cs" />
-    <Compile Include="Views\Template\Templates\TemplateProvider\TemplateProviderLocalFileSystem.cs" />
-    <Compile Include="Views\Template\Templates\TemplateProvider\TemplateProviderMemory.cs" />
+    <Compile Include="Views\Template\Templates\TemplateProvider\TemplateProviderVirtualFileSystem.cs" />
     <Compile Include="Views\Template\Templates\Tokenizers\ExpressionTokenizer.cs" />
     <Compile Include="Views\Template\Templates\Tokenizers\TemplateToken.cs" />
     <Compile Include="Views\Template\Templates\Tokenizers\TemplateTokenizer.cs" />

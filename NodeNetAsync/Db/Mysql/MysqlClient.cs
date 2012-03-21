@@ -173,7 +173,7 @@ namespace NodeNetAsync.Db.Mysql
 			return new MysqlPacket(ConnectionEncoding, PacketNumber, Data);
 		}
 
-		async public Task<IEnumerable<TType>> QueryAsyncAs<TType>(string Query, params object[] Params)
+		async public Task<IEnumerable<TType>> QueryAsAsync<TType>(string Query, params object[] Params)
 		{
 			var List = new List<TType>();
 

@@ -28,7 +28,12 @@ namespace NodeNetAsync.Net.Http
 		/// <summary>
 		/// 
 		/// </summary>
-		public string Url;
+		public UrlString Url;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public byte[] Content;
 
 		/// <summary>
 		/// 

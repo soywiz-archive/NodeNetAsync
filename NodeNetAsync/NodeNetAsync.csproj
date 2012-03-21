@@ -73,8 +73,10 @@
     <Compile Include="Db\Mysql\MysqlQueryResult.cs" />
     <Compile Include="Db\Mysql\MysqlRow.cs" />
     <Compile Include="Net\Http\IHttpFilter.cs" />
+    <Compile Include="Net\Http\QueryString.cs" />
     <Compile Include="Net\Http\Router\HttpRouter.cs" />
     <Compile Include="Net\Http\Static\HttpStaticFileServer.cs" />
+    <Compile Include="Net\Http\UrlString.cs" />
     <Compile Include="Net\Http\WebSockets\HttpWebSocketUpgrader.cs" />
     <Compile Include="Net\Http\WebSockets\IHttpWebSocketUpgraderHandler.cs" />
     <Compile Include="Net\Http\WebSockets\WebSocket.cs" />
@@ -84,10 +86,10 @@
     <Compile Include="Streams\NodeBufferedStream.cs" />
     <Compile Include="Net\TcpServer.cs" />
     <Compile Include="Net\TcpSocket.cs" />
-    <Compile Include="OS\Dns.cs" />
+    <Compile Include="Net\Dns.cs" />
     <Compile Include="OS\Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\ArrayUtils.cs" />
+    <Compile Include="Streams\ProxyStream.cs" />
     <Compile Include="Utils\AsyncTaskEventWaiter.cs" />
     <Compile Include="Utils\AsyncTaskQueue.cs" />
     <Compile Include="Utils\AsyncCache.cs" />
@@ -98,20 +100,27 @@
     <Compile Include="Utils\ProducerConsumer.cs" />
     <Compile Include="Utils\ProducerConsumerStream.cs" />
     <Compile Include="Utils\RingBuffer.cs" />
+    <Compile Include="Utils\TaskEx.cs" />
     <Compile Include="Utils\Url.cs" />
+    <Compile Include="Vfs\IVirtualFileStream.cs" />
     <Compile Include="Vfs\IVirtualFileSystem.cs" />
     <Compile Include="Vfs\Local\LocalFileSystem.cs" />
+    <Compile Include="Vfs\Memory\MemoryFileSystem.cs" />
     <Compile Include="Vfs\VirtualFileEvent.cs" />
     <Compile Include="Vfs\VirtualFileInfo.cs" />
     <Compile Include="Vfs\VirtualFilePath.cs" />
     <Compile Include="Vfs\VirtualFileStream.cs" />
-    <Compile Include="Vfs\VirtualFileSystemExtensions.cs" />
+    <Compile Include="Vfs\IVirtualFileSystemExtensions.cs" />
+    <Compile Include="Vfs\Zip\ZipFileSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Db\Redis\RedisClient.Commands.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Net\TcpServer.Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Db\Mongo\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

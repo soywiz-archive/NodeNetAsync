@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace NodeNetAsync.Vfs
 {
+	public enum VirtualFileType
+	{
+		File = 0,
+		Directory = 1,
+		Device = 2,
+	}
+
 	public class VirtualFileInfo
 	{
 		/// <summary>
@@ -28,5 +35,29 @@ namespace NodeNetAsync.Vfs
 		/// 
 		/// </summary>
 		public DateTime LastWriteTimeUtc;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public VirtualFileType Type;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsDirectory { get { return Type == VirtualFileType.Directory; } }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsFile { get { return Type == VirtualFileType.File; } }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return String.Format("VirtualFileInfo('{0}')", Path);
+		}
 	}
 }

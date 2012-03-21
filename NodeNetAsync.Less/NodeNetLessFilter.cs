@@ -50,22 +50,41 @@ namespace NodeNetAsync.Less
 		{
 			var FileSystem = Parameter.FileSystem;
 
-			var LessFileName = Parameter.FilePath.Substring(0, Parameter.FilePath.Length - 4) + ".less";
-			var LessFileInfo = await FileSystem.GetFileInfoAsync(LessFileName);
-			var CssFile = await TransformAsync(await FileSystem.ReadAllContentAsStringAsync(LessFileName, Encoding.UTF8), LessFileName);
+			var CssFileName = Parameter.FilePath;
 
-			Parameter.AddCacheRelatedFile(LessFileName);
+			var CssFileInfo = await FileSystem.GetFileInfoAsync(CssFileName);
+			string RealFilePath;
+			string CssFile;
+			byte[] CssByteArray;
+			DateTime LastWriteTimeUtc;
 
-			var CssByteArray = Encoding.UTF8.GetBytes(CssFile);
+			if (CssFileInfo.Exists)
+			{
+				RealFilePath = CssFileName;
+				CssFile = await FileSystem.ReadAllContentAsStringAsync(CssFileName, Encoding.UTF8);
+				CssByteArray = Encoding.UTF8.GetBytes(CssFile);
+				LastWriteTimeUtc = CssFileInfo.LastWriteTimeUtc;
+			}
+			else
+			{
+				var LessFileName = CssFileName.FullPathWithoutExtension + ".less";
+				var LessFileInfo = await FileSystem.GetFileInfoAsync(LessFileName);
+				RealFilePath = LessFileName;
+				CssFile = await TransformAsync(await FileSystem.ReadAllContentAsStringAsync(LessFileName, Encoding.UTF8), LessFileName);
+				Parameter.AddCacheRelatedFile(LessFileName);
+				LastWriteTimeUtc = LessFileInfo.LastWriteTimeUtc;
+			}
+			CssByteArray = Encoding.UTF8.GetBytes(CssFile);
+
 			return new HttpStaticFileServer.ResultStruct()
 			{
 				ContentType = "text/css",
 				Data = CssByteArray,
-				RealFilePath = LessFileName,
+				RealFilePath = RealFilePath,
 				FileInfo = new VirtualFileInfo()
 				{
 					Length = CssByteArray.Length,
-					LastWriteTimeUtc = LessFileInfo.LastWriteTimeUtc,
+					LastWriteTimeUtc = LastWriteTimeUtc,
 				}
 			};
 		}

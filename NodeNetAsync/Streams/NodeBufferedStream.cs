@@ -99,10 +99,7 @@ namespace NodeNetAsync.Streams
 
 		async public Task<byte[]> ReadLineAsByteArrayAsync(int MaxBytesToRead = DefaultMaxBytesToRead)
 		{
-			var Data = (await ReadLineAsMemoryStreamAsync(MaxBytesToRead));
-			var Return = new byte[Data.Length];
-			Array.Copy(Data.GetBuffer(), 0, Return, 0, Return.Length);
-			return Return;
+			return (await ReadLineAsMemoryStreamAsync(MaxBytesToRead)).ToArray();
 		}
 
 		async public Task<byte[]> ReadBytesUntilByteAsync(byte EndByte, int MaxBytesToRead = DefaultMaxBytesToRead)

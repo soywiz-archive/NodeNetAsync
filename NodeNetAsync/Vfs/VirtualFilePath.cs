@@ -36,15 +36,31 @@ namespace NodeNetAsync.Vfs
 		}
 
 		/// <summary>
+		/// /path/file.ext -> file.ext
+		/// </summary>
+		public string Name
+		{
+			get
+			{
+				return Path.GetFileName(Value);
+			}
+		}
+
+		/// <summary>
 		/// /path/file.ext -> /path/file
 		/// </summary>
 		public string FullPathWithoutExtension
 		{
 			get
 			{
+#if false
+				return Path.GetDirectoryName(Value) + "/" + Path.GetFileNameWithoutExtension(Value);
+#else
+				//var Value = this.Name;
 				var ExtensionIndex = Value.LastIndexOf(".");
 				if (ExtensionIndex < 0) return Value;
 				return Value.Substring(0, ExtensionIndex);
+#endif
 			}
 		}
 

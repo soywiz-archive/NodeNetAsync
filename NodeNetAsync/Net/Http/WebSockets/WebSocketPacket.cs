@@ -152,7 +152,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 					Data.Write(Temp, 0, PayloadLength);
 				} while (!IsFinal);
 
-				Packet.Payload = Data.GetContentBytes();
+				Packet.Payload = Data.ToArray();
 			}
 
 			return Packet;

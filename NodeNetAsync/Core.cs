@@ -71,10 +71,18 @@ namespace NodeNetAsync
 #endif
 			if (ShowVersion)
 			{
-				Console.WriteLine("Node.NET {0}", Core.Version);
+				Console.Write("Node.NET {0}", Core.Version);
+				if (Debugger.IsAttached)
+				{
+					Console.Write(" - Debugger Attached");
+				}
+				Console.WriteLine();
 			}
 
-			if (Environment.UserInteractive)
+			//Console.WriteLine("c");
+
+			//if (Environment.UserInteractive)
+			if (true)
 			{
 				try
 				{

@@ -61,18 +61,18 @@ namespace NodeNetAsync.Vfs.Memory
 			{
 				string FileName;
 				var ParentDirectory = LocateParentNode(Path, out FileName);
-				if (!ParentDirectory.ChildsByName.ContainsKey(FileName))
+				if (!ParentDirectory.ContainsChild(FileName))
 				{
-					return ParentDirectory.ChildsByName[FileName];
+					throw (new IOException("File '" + Path + "' : '" + FileName + "' doesn't Exist"));
 				}
-				throw (new IOException("File Doesn't Exist"));
+				return ParentDirectory.GetChild(FileName);
 			}
 
 			internal NodeVirtualFileInfo Create(VirtualFilePath Path, VirtualFileType CreateType, bool ErrorIfExists)
 			{
 				string FileName;
 				var ParentDirectory = LocateParentNode(Path, out FileName);
-				if (ParentDirectory.ChildsByName.ContainsKey(FileName))
+				if (ParentDirectory.ContainsChild(FileName))
 				{
 					if (ErrorIfExists)
 					{
@@ -80,7 +80,7 @@ namespace NodeNetAsync.Vfs.Memory
 					}
 					else
 					{
-						return ParentDirectory.ChildsByName[FileName];
+						return ParentDirectory.GetChild(FileName);
 					}
 				}
 				else
@@ -89,11 +89,18 @@ namespace NodeNetAsync.Vfs.Memory
 				}
 			}
 
+			private bool ContainsChild(string FileName)
+			{
+				return this.ChildsByName.ContainsKey(FileName);
+			}
+
 			private NodeVirtualFileInfo AddChild(string Part, VirtualFileType Type)
 			{
 				var That = new NodeVirtualFileInfo(Part, Type, this);
-				Childs.Add(That);
-				ChildsByName.Add(Part, That);
+				{
+					this.Childs.Add(That);
+					this.ChildsByName.Add(Part, That);
+				}
 				return That;
 			}
 

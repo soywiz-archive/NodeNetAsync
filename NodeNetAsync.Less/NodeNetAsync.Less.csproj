@@ -54,6 +54,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NodeNetAsync.Yui\NodeNetAsync.Yui.csproj">
+      <Project>{528b450e-8393-4e8f-b7fc-dd4ba6871818}</Project>
+      <Name>NodeNetAsync.Yui</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NodeNetAsync\NodeNetAsync.csproj">
       <Project>{9b1bbe3f-4c0a-4ef4-be2a-a0a4533fd4db}</Project>
       <Name>NodeNetAsync</Name>

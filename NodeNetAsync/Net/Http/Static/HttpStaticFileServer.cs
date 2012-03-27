@@ -243,5 +243,10 @@ namespace NodeNetAsync.Net.Http.Static
 			ExtensionHandlersAsync["." + Extension] = HandlerAsync;
 			//throw new NotImplementedException();
 		}
+
+		public void AddFilter(IHttpStaticFilter IHttpStaticFilter)
+		{
+			IHttpStaticFilter.RegisterFilters(this);
+		}
 	}
 }

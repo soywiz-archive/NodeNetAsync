@@ -16,11 +16,5 @@ namespace System.Linq
 			Array.Copy(Data, Offset, Return, 0, Count);
 			return Return;
 		}
-
-		static public byte[] GetContentBytes(this MemoryStream MemoryStream)
-		{
-			return MemoryStream.ToArray();
-			//return MemoryStream.GetBuffer().GetSlice(0, (int)MemoryStream.Length);
-		}
 	}
 }

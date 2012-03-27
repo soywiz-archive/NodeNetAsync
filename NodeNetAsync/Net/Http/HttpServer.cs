@@ -202,7 +202,8 @@ namespace NodeNetAsync.Net.Http
 								await Response.WriteAsync("--><pre>" + Html.Quote(YieldedException.ToString()) + "</pre>");
 							}
 
-							await Console.Out.WriteLineAsync("Exception : " + YieldedException.ToString());							
+							//await Console.Out.WriteLineAsync("Exception : " + YieldedException.ToString());
+							Console.WriteLine("Exception : " + YieldedException.ToString());
 						}
 						YieldedException = null;
 					}

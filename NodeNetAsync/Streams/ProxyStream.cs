@@ -5,17 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeNetAsync.Streams
+namespace System.IO
 {
 	public class ProxyStream : Stream
 	{
+		public long InternalPosition;
 		public Stream ParentStream;
 		protected bool CloseParent;
 
 		public ProxyStream(Stream ParentStream, bool CloseParent)
 		{
+			if (ParentStream is ProxyStream) ParentStream = ((ProxyStream)ParentStream).ParentStream;
 			this.ParentStream = ParentStream;
 			this.CloseParent = CloseParent;
+			this.InternalPosition = 0;
 		}
 
 		public override bool CanRead
@@ -47,22 +50,23 @@ namespace NodeNetAsync.Streams
 		{
 			get
 			{
-				return ParentStream.Position;
+				return InternalPosition;
 			}
 			set
 			{
-				ParentStream.Position = value;
+				InternalPosition = value;
 			}
-		}
-
-		public override int Read(byte[] buffer, int offset, int count)
-		{
-			return ParentStream.Read(buffer, offset, count);
 		}
 
 		public override long Seek(long offset, SeekOrigin origin)
 		{
-			return ParentStream.Seek(offset, origin);
+			switch (origin)
+			{
+				case SeekOrigin.Begin: Position = offset; break;
+				case SeekOrigin.Current: Position += offset; break;
+				case SeekOrigin.End: Position = Length + offset; break;
+			}
+			return Position;
 		}
 
 		public override void SetLength(long value)
@@ -70,19 +74,44 @@ namespace NodeNetAsync.Streams
 			ParentStream.SetLength(value);
 		}
 
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			int Result = 0;
+			ParentStream.SaveRestorePositionAndLock(() =>
+			{
+				ParentStream.Position = Position;
+				Result = ParentStream.Read(buffer, offset, count);
+			});
+			return Result;
+		}
+
 		public override void Write(byte[] buffer, int offset, int count)
 		{
-			ParentStream.Write(buffer, offset, count);
+			ParentStream.SaveRestorePositionAndLock(() =>
+			{
+				ParentStream.Position = Position;
+				ParentStream.Write(buffer, offset, count);
+			});
 		}
 
-		public override Task WriteAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken)
+		async public override Task WriteAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken)
 		{
-			return base.WriteAsync(buffer, offset, count, cancellationToken);
+			await ParentStream.SaveRestorePositionAsync(async () =>
+			{
+				ParentStream.Position = Position;
+				await ParentStream.WriteAsync(buffer, offset, count, cancellationToken);
+			});
 		}
 
-		public override Task<int> ReadAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken)
+		async public override Task<int> ReadAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken)
 		{
-			return base.ReadAsync(buffer, offset, count, cancellationToken);
+			int Result = 0;
+			await ParentStream.SaveRestorePositionAsync(async () =>
+			{
+				ParentStream.Position = Position;
+				Result = await ParentStream.ReadAsync(buffer, offset, count, cancellationToken);
+			});
+			return Result;
 		}
 
 		protected override void Dispose(bool disposing)

@@ -62,15 +62,16 @@ namespace NodeNetAsync.Net
 			//await Console.Out.WriteLineAsync(String.Format("Started socket at {0}", TcpListener.LocalEndpoint));
 			Console.WriteLine(String.Format("Ok"));
 
-			Task LastClient = null;
-
 			while (Times != 0)
 			{
-				LastClient = HandleClientInternal(new TcpSocket(await TcpListener.AcceptTcpClientAsync()));
+				var Task = HandleClientInternal(new TcpSocket(await TcpListener.AcceptTcpClientAsync()));
+
+				if (Core.IsRunningOnMono) Task.Start();
+
+				//Task.RunSynchronously();
+				//Task.Start(TaskScheduler.Current);
 				if (Times > 0) Times--;
 			}
-
-			if (LastClient != null) await LastClient;
 
 			Console.WriteLine("Done");
 		}

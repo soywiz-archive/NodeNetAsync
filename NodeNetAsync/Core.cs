@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define RUN_ON_MONO
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,6 +9,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 
 namespace NodeNetAsync
 {
@@ -55,12 +58,87 @@ namespace NodeNetAsync
 			}
 		}
 
+		static bool Debug
+		{
+			get
+			{
+#if DEBUG
+				return true;
+#else
+				return false;
+#endif
+			}
+		}
+
+		static bool Standalone
+		{
+			get
+			{
+				return !Debugger.IsAttached;
+			}
+		}
+
+		static public string GetExecutablePath()
+		{
+			return Assembly.GetEntryAssembly().Location;
+		}
+
+		static public void CheckAndRunOnMono()
+		{
+			if (!IsRunningOnMono)
+			{
+				var ProcessStartInfo = new ProcessStartInfo();
+
+				var MonoPath = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Novell\Mono\2.11").GetValue("SdkInstallRoot");
+
+				ProcessStartInfo.FileName = MonoPath + @"\bin\mono.exe";
+				ProcessStartInfo.Arguments = "--debug -O=gshared " + GetExecutablePath();
+				//ProcessStartInfo.Arguments = "" + GetExecutablePath();
+
+				ProcessStartInfo.UseShellExecute = false;
+
+				//ProcessStartInfo.ErrorDialog = false;
+
+				//ProcessStartInfo.RedirectStandardError = true;
+				//ProcessStartInfo.RedirectStandardInput = true;
+				//ProcessStartInfo.RedirectStandardOutput = true;
+
+				var MProcess = Process.Start(ProcessStartInfo);
+				/*
+				while (!MProcess.StandardOutput.EndOfStream)
+				{
+					Console.WriteLine(MProcess.StandardOutput.ReadLine());
+				}
+
+				while (!MProcess.StandardError.EndOfStream)
+				{
+					Console.WriteLine(MProcess.StandardError.ReadLine());
+				}
+				*/
+
+				Console.ReadKey();
+				Environment.Exit(0);
+			}
+		}
+
+		public static bool IsRunningOnMono
+		{
+			get
+			{
+				return Type.GetType("Mono.Runtime") != null;
+			}
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="Action"></param>
 		static public void Loop(Func<Task> Action, bool ShowVersion = true)
 		{
+#if RUN_ON_MONO
+			CheckAndRunOnMono();
+#endif
+
 #if false
 			//if (Debugger.IsAttached)
 			if (false)
@@ -72,11 +150,22 @@ namespace NodeNetAsync
 			if (ShowVersion)
 			{
 				Console.Write("Node.NET {0}", Core.Version);
-				if (Debugger.IsAttached)
+				if (Debug)
+				{
+					Console.Write(" - Debug Version");
+				}
+
+				if (Standalone)
+				{
+					Console.Write(" - Standalone");
+				}
+				else
 				{
 					Console.Write(" - Debugger Attached");
 				}
+
 				Console.WriteLine();
+				Console.WriteLine("Concurrency: {0}", TaskScheduler.Default.MaximumConcurrencyLevel);
 			}
 
 			//Console.WriteLine("c");
@@ -91,6 +180,10 @@ namespace NodeNetAsync
 				catch (Exception Exception)
 				{
 					Console.WriteLine(Exception);
+					if (Debug)
+					{
+						Console.ReadKey();
+					}
 				}
 			}
 			else

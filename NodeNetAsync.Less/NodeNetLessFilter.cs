@@ -9,6 +9,7 @@ using dotless.Core.configuration;
 using NodeNetAsync.Net.Http;
 using NodeNetAsync.Net.Http.Static;
 using NodeNetAsync.OS;
+using NodeNetAsync.Utils;
 using NodeNetAsync.Vfs;
 using NodeNetAsync.Yui;
 
@@ -63,7 +64,7 @@ namespace NodeNetAsync.Less
 		/// <returns></returns>
 		async static protected Task<string> TransformAsync(string LessCode, string FileName = "unknown.less")
 		{
-			return await Task.Run(() =>
+			return await TaskEx.RunPropagatingExceptionsAsync(() =>
 			{
 				if (Config == null)
 				{
@@ -100,7 +101,7 @@ namespace NodeNetAsync.Less
 			if (CssFileInfo.Exists)
 			{
 				RealFilePath = CssFileName;
-				CssFile = await FileSystem.ReadAllContentAsStringAsync(CssFileName, Encoding.UTF8);
+				CssFile = await FileSystem.ReadAsTextAsync(CssFileName, Encoding.UTF8);
 				CssByteArray = Encoding.UTF8.GetBytes(CssFile);
 				LastWriteTimeUtc = CssFileInfo.LastWriteTimeUtc;
 			}
@@ -109,15 +110,19 @@ namespace NodeNetAsync.Less
 				var LessFileName = CssFileName.FullPathWithoutExtension + ".less";
 				var LessFileInfo = await FileSystem.GetFileInfoAsync(LessFileName);
 				RealFilePath = LessFileName;
-				CssFile = await TransformAsync(await FileSystem.ReadAllContentAsStringAsync(LessFileName, Encoding.UTF8), LessFileName);
+				CssFile = await TransformAsync(await FileSystem.ReadAsTextAsync(LessFileName, Encoding.UTF8), LessFileName);
 				Parameter.AddCacheRelatedFile(LessFileName);
 				LastWriteTimeUtc = LessFileInfo.LastWriteTimeUtc;
 			}
+
+			//Console.WriteLine("[1]");
 
 			if (Compressing)
 			{
 				CssFile = await Compressor.CompressCssAsync(CssFile);
 			}
+
+			//Console.WriteLine("[2]");
 
 			CssByteArray = Encoding.UTF8.GetBytes(CssFile);
 

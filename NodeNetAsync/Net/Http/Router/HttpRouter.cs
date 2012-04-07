@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -34,6 +35,7 @@ namespace NodeNetAsync.Net.Http.Router
 
 		async public Task RouteAsync(HttpRequest Request, HttpResponse Response)
 		{
+			Console.WriteLine("Request: {0}", Request.Url);
 			//var UrlParts = Request.Url.Split(new[] { '?' }, 2);
 			//var 
 			var Path = Request.Url.Path;

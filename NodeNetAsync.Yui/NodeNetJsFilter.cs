@@ -72,7 +72,7 @@ namespace NodeNetAsync.Yui
 			{
 				Parameter.AddCacheRelatedFile(JsxFileName);
 
-				var JsxFile = await FileSystem.ReadAllContentAsStringAsync(JsxFileName, Encoding.UTF8);
+				var JsxFile = await FileSystem.ReadAsTextAsync(JsxFileName, Encoding.UTF8);
 				foreach (var _Part in JsxFile.Split('\n', '\r'))
 				{
 					var JsComponentFileName = _Part.Trim();
@@ -82,7 +82,7 @@ namespace NodeNetAsync.Yui
 
 						var JsComponentFileInfo = await FileSystem.GetFileInfoAsync(JsComponentFileName);
 
-						CombinedJsFile += await FileSystem.ReadAllContentAsStringAsync(JsComponentFileName, Encoding.UTF8);
+						CombinedJsFile += await FileSystem.ReadAsTextAsync(JsComponentFileName, Encoding.UTF8);
 						if (CombinedJsDateTimeUtc < JsComponentFileInfo.LastWriteTimeUtc)
 						{
 							CombinedJsDateTimeUtc = JsComponentFileInfo.LastWriteTimeUtc;
@@ -95,7 +95,7 @@ namespace NodeNetAsync.Yui
 			// Not existing a .jsx file, serve the .js file
 			else
 			{
-				CombinedJsFile = await FileSystem.ReadAllContentAsStringAsync(JsFileName, Encoding.UTF8);
+				CombinedJsFile = await FileSystem.ReadAsTextAsync(JsFileName, Encoding.UTF8);
 				CombinedJsDateTimeUtc = JsFileInfo.LastWriteTimeUtc;
 			}
 

@@ -15,8 +15,8 @@ namespace NodeNetAsync.Tests.Vfs.Memory
 		[TestMethod]
 		async public Task TestMemoryFileSystem()
 		{
-			await FileSystem.WriteAllContentAsync("/file.txt", "Hello World!", Encoding.UTF8);
-			Assert.AreEqual("Hello World!", await FileSystem.ReadAllContentAsStringAsync("/file.txt", Encoding.UTF8));
+			await FileSystem.WriteTextAsync("/file.txt", "Hello World!", Encoding.UTF8);
+			Assert.AreEqual("Hello World!", await FileSystem.ReadAsTextAsync("/file.txt", Encoding.UTF8));
 		}
 	}
 }

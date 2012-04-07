@@ -22,9 +22,9 @@ namespace NodeNetAsync.Tests.Utils
 		[TestMethod]
 		public void GetInnerFileRelativeToPathTest()
 		{
-			Assert.AreEqual("C:/path/to/file/file.txt", Url.GetInnerFileRelativeToPath(@"C:\path\to\file", "../../file.txt"));
-			Assert.AreEqual("C:/path/to/file/file.txt", Url.GetInnerFileRelativeToPath(@"C:\path\to\file", "/file.txt"));
-			Assert.AreEqual("C:/path/to/file/file.txt", Url.GetInnerFileRelativeToPath(@"C:\path\to\file/", "/file.txt"));
+			Assert.AreEqual("C:/path/to/file/file.txt", Url.Merge(@"C:\path\to\file", "../../file.txt"));
+			Assert.AreEqual("C:/path/to/file/file.txt", Url.Merge(@"C:\path\to\file", "/file.txt"));
+			Assert.AreEqual("C:/path/to/file/file.txt", Url.Merge(@"C:\path\to\file/", "/file.txt"));
 		}
 	}
 }

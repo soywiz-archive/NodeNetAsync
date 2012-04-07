@@ -16,6 +16,23 @@ namespace NodeNetAsync.Utils
 
 		async public Task EnqueueAsync(Func<Task> TaskToEnqueue)
 		{
+#if false
+			var PreviousEnqueuedTask = LastEnqueuedTask;
+
+			if (PreviousEnqueuedTask == null)
+			{
+				LastEnqueuedTask = TaskToEnqueue();
+			}
+			else
+			{
+				LastEnqueuedTask = PreviousEnqueuedTask.ContinueWith(async () =>
+				{
+					await TaskToEnqueue();
+				});
+			}
+
+			await PreviousEnqueuedTask;
+#else
 			var PreviousEnqueuedTask = LastEnqueuedTask;
 			LastEnqueuedTask = ((Func<Task>)(async () =>
 			{
@@ -25,6 +42,7 @@ namespace NodeNetAsync.Utils
 
 			await LastEnqueuedTask;
 			LastEnqueuedTask = null;
+#endif
 		}
 
 		async public Task WaitAllAsync()

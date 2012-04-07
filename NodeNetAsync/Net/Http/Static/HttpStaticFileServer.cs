@@ -156,7 +156,7 @@ namespace NodeNetAsync.Net.Http.Static
 
 					if (ShouldCacheInMemory)
 					{
-						Data = await VirtualFileSystem.ReadAllBytesAsync(FilePath);
+						Data = await VirtualFileSystem.ReadAsBytesAsync(FilePath);
 						ETag = BitConverter.ToString(MD5.Create().ComputeHash(Data));
 					}
 

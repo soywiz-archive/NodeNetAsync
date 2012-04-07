@@ -27,7 +27,7 @@ namespace NodeNetAsync.Vfs.Local
 
 		protected string GetAbsolutePathFromRelative(string RelativePath)
 		{
-			return Url.GetInnerFileRelativeToPath(RootPath, RelativePath);
+			return Url.Merge(RootPath, RelativePath);
 		}
 
 		protected VirtualFilePath GetRelativePathFromAbsolute(string AbsolutePath)
@@ -91,7 +91,8 @@ namespace NodeNetAsync.Vfs.Local
 		{
 			return await TaskEx.RunPropagatingExceptionsAsync(() =>
 			{
-				return new VirtualFileStream(File.Open(GetAbsolutePathFromRelative(Path), FileMode, FileAccess, FileShare));
+				var Stream = File.Open(GetAbsolutePathFromRelative(Path), FileMode, FileAccess, FileShare);
+				return new VirtualFileStream(Stream);
 			});
 		}
 

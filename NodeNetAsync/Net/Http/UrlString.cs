@@ -19,6 +19,9 @@ namespace NodeNetAsync.Net.Http
 		public string Path { get; private set; }
 		public QueryString Query { get; private set; }
 
+		//public bool HasAuthority { get { return (User != null || Password != null); } }
+		//public bool IsAbsolute { get { return Schema != null; } }
+
 		public string Full
 		{
 			get

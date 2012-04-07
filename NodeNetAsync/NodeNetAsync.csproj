@@ -94,6 +94,7 @@
     <Compile Include="Net\Http\WebSockets\WebSocket.cs" />
     <Compile Include="Net\Http\WebSockets\WebSocketPacket.cs" />
     <Compile Include="Net\TestTcpServer.cs" />
+    <Compile Include="SeamlessBuild\Watcher.cs" />
     <Compile Include="Streams\IAsyncWriter.cs" />
     <Compile Include="Streams\NodeBufferedStream.cs" />
     <Compile Include="Net\TcpServer.cs" />

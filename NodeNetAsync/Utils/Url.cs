@@ -63,10 +63,20 @@ namespace NodeNetAsync.Utils
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="Url"></param>
+		/// <returns></returns>
+		static public string RemoveDotSegments(string Url)
+		{
+			return Normalize(Url);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="Base"></param>
 		/// <param name="Relative"></param>
 		/// <returns></returns>
-		static public string GetInnerFileRelativeToPath(string Base, string Relative)
+		static public string Merge(string Base, string Relative)
 		{
 			Base = Normalize(Base);
 			Relative = Normalize(Relative);

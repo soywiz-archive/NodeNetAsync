@@ -109,7 +109,7 @@ namespace NodeNetAsync.Net.Http.Static
 			}
 		}
 
-		async Task IHttpFilter.FilterAsync(HttpRequest Request, HttpResponse Response)
+		async public Task FilterAsync(HttpRequest Request, HttpResponse Response)
 		{
 			var FilePath = Request.Url.Path;
 			if (Path.GetExtension(FilePath) == "")

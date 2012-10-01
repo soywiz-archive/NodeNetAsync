@@ -46,7 +46,7 @@ namespace NodeNetAsync.Net.Http.WebSockets
 		/// <param name="Request"></param>
 		/// <param name="Response"></param>
 		/// <returns></returns>
-		async Task IHttpFilter.FilterAsync(HttpRequest Request, HttpResponse Response)
+		async public Task FilterAsync(HttpRequest Request, HttpResponse Response)
 		{
 			// https://github.com/einaros/ws
 			// Hixie draft 76 (Old and deprecated, but still in use by Safari and Opera. Added to ws version 0.4.2, but server only. Can be disabled by setting the disableHixie option to true.)

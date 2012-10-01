@@ -31,9 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.9\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Json, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.Serialization.Json" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
@@ -48,19 +51,11 @@
     <Compile Include="Db\CouchDb\CouchDbClient.cs" />
     <Compile Include="Db\CouchDb\CouchDbCollection.cs" />
     <Compile Include="Db\CouchDb\CouchDbRaw.cs" />
-    <Compile Include="Db\MongoDb\Bson\BsonArray.cs" />
-    <Compile Include="Db\MongoDb\Bson\BsonDocument.cs" />
-    <Compile Include="Db\MongoDb\Bson\BsonString.cs" />
-    <Compile Include="Db\MongoDb\Bson\BsonType.cs" />
-    <Compile Include="Db\MongoDb\Bson\Serializer\BsonSerializer.cs" />
-    <Compile Include="Db\MongoDb\Bson\BsonValue.cs" />
     <Compile Include="Db\MongoDb\MongoDbClient.cs" />
     <Compile Include="Db\Mysql\MysqlClient.Commands.cs" />
     <Compile Include="Db\Mysql\MysqlClient.Utils.cs" />
     <Compile Include="Db\Redis\RedisClient.cs" />
     <Compile Include="Db\Redis\RedisResponseException.cs" />
-    <Compile Include="Json\JsonExtensions.cs" />
-    <Compile Include="Json\JsonSerializer.cs" />
     <Compile Include="Net\Https\HttpsServer.Certificate.cs" />
     <Compile Include="Net\Https\HttpsServer.cs" />
     <Compile Include="Net\Http\HttpCode.cs" />
@@ -133,7 +128,9 @@
   <ItemGroup>
     <Compile Include="Net\TcpServer.Utils.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

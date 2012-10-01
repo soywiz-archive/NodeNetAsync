@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>NodeNetAsync.Examples.HttpsTestProgram</StartupObject>
+    <StartupObject>NodeNetAsync.Examples.HelloWorldProgram</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -58,10 +58,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NodeNetAsync.Tests\NodeNetAsync.Tests.csproj">
-      <Project>{5010d339-2681-4ebf-aef6-3d84fea0c100}</Project>
-      <Name>NodeNetAsync.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NodeNetAsync\NodeNetAsync.csproj">
       <Project>{9b1bbe3f-4c0a-4ef4-be2a-a0a4533fd4db}</Project>
       <Name>NodeNetAsync</Name>

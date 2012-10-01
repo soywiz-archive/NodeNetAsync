@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Json;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace NodeNetAsync.Db.CouchDb
 {
@@ -17,7 +17,8 @@ namespace NodeNetAsync.Db.CouchDb
 
 		async public Task<IEnumerable<string>> GetAllCollectionNamesAsync()
 		{
-			return ((await Raw.GetAsync("_all_dbs")) as IEnumerable<JsonValue>).Select(Item => (string)Item);
+			var Value = await Raw.GetAsync("_all_dbs");
+			return Value.ToObject<string[]>();
 		}
 
 		async public Task<string> GetVersionAsync()

@@ -50,7 +50,6 @@
   <ItemGroup>
     <Compile Include="Db\Mysql\MysqlClientTest.cs" />
     <Compile Include="Db\Redis\RedisClientTest.cs" />
-    <Compile Include="Json\JsonSerializerTest.cs" />
     <Compile Include="Net\Http\HttpHeadersTest.cs" />
     <Compile Include="Net\Http\WebSockets\HttpWebSocketUpgraderTest.cs" />
     <Compile Include="Net\Http\WebSockets\WebSocketPacketTest.cs" />

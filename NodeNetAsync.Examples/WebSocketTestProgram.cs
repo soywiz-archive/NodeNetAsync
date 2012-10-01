@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -233,7 +234,7 @@ namespace NodeNetAsync.Examples
 						<head>
 							<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js' type='text/javascript'></script>
 							<style type='text/css'>
-								#console {
+								div#console {
 									border: 1px solid black;
 									padding: 8px;
 									width: 400px;
@@ -344,3 +345,4 @@ namespace NodeNetAsync.Examples
 		}
 	}
 }
+#endif

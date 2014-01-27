@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using NodeNetAsync.Streams;
 using NodeNetAsync.Utils;
 using SystemTcpClient = System.Net.Sockets.TcpClient;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NodeNetAsync.Net
 {
@@ -36,6 +39,8 @@ namespace NodeNetAsync.Net
 			this.TcpClient = new TcpClient();
 			_Init();
 		}
+
+		public bool Connected { get { return TcpClient.Connected; } }
 
 		internal TcpSocket(SystemTcpClient TcpClient, int BufferSize = NodeBufferedStream.DefaultBufferSize)
 			: base(BufferSize)
@@ -67,6 +72,21 @@ namespace NodeNetAsync.Net
 			this.TcpClient.ReceiveBufferSize = BufferSize;
 			this.TcpClient.SendBufferSize = BufferSize;
 			this.TcpClient.NoDelay = true;
+		}
+
+		async public Task SecureSslAsync(string Domain)
+		{
+			//var SslStream = new NegotiateStream(Stream);
+			//await SslStream.AuthenticateAsClientAsync();
+			var SslStream = new SslStream(Stream, false, (sender, certificate, chain, sslPolicyErrors) =>
+			{
+				//Console.WriteLine(certificate);
+				return true;
+			}, null);
+			System.Net.WebRequest.DefaultWebProxy = null;
+			await SslStream.AuthenticateAsClientAsync(Domain, null, SslProtocols.Default, false);
+			//await SslStream.AuthenticateAsClientAsync(Domain);
+			Stream = SslStream;
 		}
 	}
 }

@@ -83,52 +83,6 @@ namespace NodeNetAsync
 			return Assembly.GetEntryAssembly().Location;
 		}
 
-		static public void CheckAndRunOnMono()
-		{
-			if (!IsRunningOnMono)
-			{
-				var ProcessStartInfo = new ProcessStartInfo();
-
-				var MonoPath = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Novell\Mono\2.11").GetValue("SdkInstallRoot");
-
-				ProcessStartInfo.FileName = MonoPath + @"\bin\mono.exe";
-				ProcessStartInfo.Arguments = "--debug -O=gshared " + GetExecutablePath();
-				//ProcessStartInfo.Arguments = "" + GetExecutablePath();
-
-				ProcessStartInfo.UseShellExecute = false;
-
-				//ProcessStartInfo.ErrorDialog = false;
-
-				//ProcessStartInfo.RedirectStandardError = true;
-				//ProcessStartInfo.RedirectStandardInput = true;
-				//ProcessStartInfo.RedirectStandardOutput = true;
-
-				var MProcess = Process.Start(ProcessStartInfo);
-				/*
-				while (!MProcess.StandardOutput.EndOfStream)
-				{
-					Console.WriteLine(MProcess.StandardOutput.ReadLine());
-				}
-
-				while (!MProcess.StandardError.EndOfStream)
-				{
-					Console.WriteLine(MProcess.StandardError.ReadLine());
-				}
-				*/
-
-				Console.ReadKey();
-				Environment.Exit(0);
-			}
-		}
-
-		public static bool IsRunningOnMono
-		{
-			get
-			{
-				return Type.GetType("Mono.Runtime") != null;
-			}
-		}
-
 		/// <summary>
 		/// 
 		/// </summary>
@@ -163,6 +117,8 @@ namespace NodeNetAsync
 				{
 					Console.Write(" - Debugger Attached");
 				}
+
+				Console.Write(" - {0} Bits", IntPtr.Size * 8);
 
 				Console.WriteLine();
 				Console.WriteLine("Concurrency: {0}", TaskScheduler.Default.MaximumConcurrencyLevel);

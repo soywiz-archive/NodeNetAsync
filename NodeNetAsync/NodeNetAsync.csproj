@@ -21,6 +21,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -89,6 +90,7 @@
     <Compile Include="Net\Http\WebSockets\WebSocket.cs" />
     <Compile Include="Net\Http\WebSockets\WebSocketPacket.cs" />
     <Compile Include="Net\TestTcpServer.cs" />
+    <Compile Include="Net\Xmpp\Xmpp.cs" />
     <Compile Include="SeamlessBuild\Watcher.cs" />
     <Compile Include="Streams\IAsyncWriter.cs" />
     <Compile Include="Streams\NodeBufferedStream.cs" />

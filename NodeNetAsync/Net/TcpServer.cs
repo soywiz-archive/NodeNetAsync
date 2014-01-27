@@ -66,10 +66,6 @@ namespace NodeNetAsync.Net
 			{
 				var Task = HandleClientInternal(new TcpSocket(await TcpListener.AcceptTcpClientAsync()));
 
-				if (Core.IsRunningOnMono) Task.Start();
-
-				//Task.RunSynchronously();
-				//Task.Start(TaskScheduler.Current);
 				if (Times > 0) Times--;
 			}
 

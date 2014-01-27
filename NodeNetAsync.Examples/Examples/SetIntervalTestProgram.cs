@@ -17,11 +17,11 @@ namespace NodeNetAsync.Examples
 			{
 				int SecondsElapsed = 0;
 
-				Core.SetInterval(async () =>
+				Core.SetInterval(TimeSpan.FromMilliseconds(1000), async () =>
 				{
 					SecondsElapsed++;
 					await Task.Yield();
-				}, TimeSpan.FromMilliseconds(1000));
+				});
 
 				/*
 				var DirProcess = await Process.SpawnAsync(@"c:\dev\php\php.exe", "-v");

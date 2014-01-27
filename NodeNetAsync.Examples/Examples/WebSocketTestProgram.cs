@@ -35,10 +35,10 @@ namespace NodeNetAsync.Examples
 
 			public WebsocketChatHandler()
 			{
-				Core.SetInterval(async () =>
+				Core.SetInterval(TimeSpan.FromSeconds(4), async () =>
 				{
 					await SendMessageToAllAsync(String.Format("Global: Timer Tick 4 seconds. Connected users: {0}", ConnectedSockets.Count));
-				}, TimeSpan.FromSeconds(4));
+				});
 			}
 
 			/// <summary>

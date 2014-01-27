@@ -14,10 +14,10 @@ namespace NodeNetAsync.Examples
 		{
 			Core.Loop(async () =>
 			{
-				Core.SetInterval(async () =>
+				Core.SetInterval(TimeSpan.FromMilliseconds(1000), async () =>
 				{
 					await Console.Out.WriteLineAsync("Hello World!");
-				}, TimeSpan.FromMilliseconds(1000));
+				});
 
 				await HttpServer.Create(async (Request, Response) =>
 				{

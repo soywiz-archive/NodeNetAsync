@@ -78,9 +78,9 @@ namespace NodeNetAsync
 			}
 		}
 
-		static public string GetExecutablePath()
+		static public string ExecutablePath
 		{
-			return Assembly.GetEntryAssembly().Location;
+			get { return Assembly.GetEntryAssembly().Location; }
 		}
 
 		/// <summary>
@@ -154,7 +154,7 @@ namespace NodeNetAsync
 		/// <param name="Action"></param>
 		/// <param name="TimeSpan"></param>
 		/// <returns></returns>
-		static public TimerAsync SetTimeout(Func<Task> Action, TimeSpan TimeSpan)
+		static public TimerAsync SetTimeout(TimeSpan TimeSpan, Func<Task> Action)
 		{
 			var TimerAsync = new TimerAsync();
 			Task.Run(async () =>
@@ -171,7 +171,7 @@ namespace NodeNetAsync
 		/// <param name="Action"></param>
 		/// <param name="TimeSpan"></param>
 		/// <returns></returns>
-		static public TimerAsync SetInterval(Func<Task> Action, TimeSpan TimeSpan)
+		static public TimerAsync SetInterval(TimeSpan TimeSpan, Func<Task> Action)
 		{
 			var TimerAsync = new TimerAsync();
 			Task.Run(async () =>
@@ -185,42 +185,17 @@ namespace NodeNetAsync
 			return TimerAsync;
 		}
 
-		/*
-		static public TimerAsync SetTimeout(Action Action, TimeSpan TimeSpan)
-		{
-			return SetTimeout(() => new Task(Action), TimeSpan);
-		}
-
-		static public TimerAsync SetInterval(Action Action, TimeSpan TimeSpan)
-		{
-			return SetInterval(() => new Task(Action), TimeSpan);
-		}
-		*/
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="TimerAsync"></param>
-		static public void ClearTimeout(TimerAsync TimerAsync)
-		{
-			TimerAsync.Running = false;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="TimerAsync"></param>
-		static public void ClearInterval(TimerAsync TimerAsync)
-		{
-			TimerAsync.Running = false;
-		}
-
 		/// <summary>
 		/// 
 		/// </summary>
 		public class TimerAsync
 		{
 			internal bool Running = true;
+
+			public void Stop()
+			{
+				Running = false;
+			}
 		}
 	}
 }

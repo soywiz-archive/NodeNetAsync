@@ -63,10 +63,10 @@ namespace NodeNetAsync.Db.Mysql
 			HandleResultPacket(await ReadPacketAsync());
 			if (KeepAlive)
 			{
-				Core.SetInterval(async () =>
+				Core.SetInterval(TimeSpan.FromSeconds(5), async () =>
 				{
 					await PingAsync();
-				}, TimeSpan.FromSeconds(5));
+				});
 			}
 		}
 

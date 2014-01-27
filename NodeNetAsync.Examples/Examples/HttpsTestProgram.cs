@@ -1,5 +1,4 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +12,7 @@ namespace NodeNetAsync.Examples
 {
 	class HttpsTestProgram
 	{
-		static void Main(string[] args)
+		static public void Main(string[] args)
 		{
 			Core.Loop(async () =>
 			{
@@ -50,4 +49,3 @@ namespace NodeNetAsync.Examples
 		}
 	}
 }
-#endif

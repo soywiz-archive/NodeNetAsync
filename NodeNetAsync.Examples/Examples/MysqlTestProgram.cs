@@ -1,5 +1,4 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,14 +8,14 @@ using NodeNetAsync.Db.Mysql;
 using NodeNetAsync.Net.Http;
 using NodeNetAsync.Net.Http.Router;
 using NodeNetAsync.Utils;
-using NodeNetAsync.Json;
+using NodeNetAsync.Vfs.Local;
 using NodeNetAsync.Net.Http.Static;
 
 namespace NodeNetAsync.Examples
 {
 	class MysqlTestProgram
 	{
-		static void Main(string[] args)
+		static public void Main(string[] args)
 		{
 			Core.Loop(async () =>
 			{
@@ -35,14 +34,15 @@ namespace NodeNetAsync.Examples
 
 					foreach (var Row in await MysqlClient.QueryAsync("SELECT 1 as 'k1', 2 as 'k2', 3 * 999, 'test', 1 as 'Ok';"))
 					{
-						await Response.WriteAsync(Row.ToJsonString());
+						await Response.WriteAsync(Row.ToString());
 					}
 
 					await MysqlClient.CloseAsync();
 				});
 
 				// Default file serving
-				Router.SetDefaultRoute(new HttpStaticFileServer(Path: @"C:\projects\csharp\NodeNet\static", Cache: true));
+
+				Router.SetDefaultRoute(new HttpStaticFileServer(new LocalFileSystem(@"C:\projects\csharp\NodeNet\static"), Cache: true));
 
 				Server.AddFilterLast(Router);
 				await Server.ListenAsync(80, "127.0.0.1");
@@ -50,4 +50,3 @@ namespace NodeNetAsync.Examples
 		}
 	}
 }
-#endif

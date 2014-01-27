@@ -1,5 +1,4 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +10,7 @@ namespace NodeNetAsync.Examples
 {
 	public class RedisTestProgram
 	{
-		static void Main(string[] args)
+		static public void Main(string[] args)
 		{
 			Core.Loop(async () =>
 			{
@@ -40,4 +39,3 @@ namespace NodeNetAsync.Examples
 		}
 	}
 }
-#endif

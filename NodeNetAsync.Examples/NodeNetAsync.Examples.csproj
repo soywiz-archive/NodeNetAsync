@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>NodeNetAsync.Examples.HelloWorldProgram</StartupObject>
+    <StartupObject>NodeNetAsync.Examples.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -44,15 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpsTestProgram.cs" />
-    <Compile Include="MysqlTestProgram.cs" />
-    <Compile Include="HelloWorldProgram.cs" />
+    <Compile Include="Examples\HttpsTestProgram.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Examples\MysqlTestProgram.cs" />
+    <Compile Include="Examples\HelloWorldProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RedisTestProgram.cs" />
-    <Compile Include="RouteTestProgram.cs" />
-    <Compile Include="SetIntervalTestProgram.cs" />
-    <Compile Include="TemplateTestProgram.cs" />
-    <Compile Include="WebSocketTestProgram.cs" />
+    <Compile Include="Examples\RedisTestProgram.cs" />
+    <Compile Include="Examples\RouteTestProgram.cs" />
+    <Compile Include="Examples\SetIntervalTestProgram.cs" />
+    <Compile Include="Examples\TemplateTestProgram.cs" />
+    <Compile Include="Examples\WebSocketTestProgram.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

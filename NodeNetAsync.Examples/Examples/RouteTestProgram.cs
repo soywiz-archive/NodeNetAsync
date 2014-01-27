@@ -1,5 +1,4 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +9,7 @@ using NodeNetAsync.Net.Http.Router;
 using NodeNetAsync.Net.Http.Static;
 using NodeNetAsync.Net.Http.WebSockets;
 using NodeNetAsync.Utils;
+using NodeNetAsync.Vfs.Local;
 
 namespace NodeNetAsync.Examples
 {
@@ -28,7 +28,7 @@ namespace NodeNetAsync.Examples
 				});
 
 				// Default file serving
-				Router.SetDefaultRoute(new HttpStaticFileServer(Path: @"C:\projects\csharp\nodenet\NodeNet\static", Cache: true));
+				Router.SetDefaultRoute(new HttpStaticFileServer(new LocalFileSystem(@"C:\projects\csharp\nodenet\NodeNet\static"), Cache: true));
 
 				Server.AddFilterLast(Router);
 				await Server.ListenAsync(80, "127.0.0.1");
@@ -36,4 +36,3 @@ namespace NodeNetAsync.Examples
 		}
 	}
 }
-#endif
